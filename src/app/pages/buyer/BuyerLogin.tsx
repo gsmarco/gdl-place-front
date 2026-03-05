@@ -69,8 +69,10 @@ export function BuyerLogin() {
       try {
         await login(formData.email, formData.password);
         navigate('/');
-      } catch (error) {
-        setErrors({ submit: 'Error al iniciar sesión. Verifica tus credenciales.' });
+      } catch (error: any) {
+      // Si el login lanza un Error con message, úsalo 
+      setErrors({ submit: error.message || 'Error al iniciar sesión. Verifica tus credenciales.' });        
+        // setErrors({ submit: 'Error al iniciar sesión. Verifica tus credenciales.' });
       } finally {
         setIsLoading(false);
       }

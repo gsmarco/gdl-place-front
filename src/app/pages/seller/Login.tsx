@@ -2,6 +2,12 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Store, Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+//import api from '../../../api/axios'; // ajusta ruta si es necesario
+import axios from 'axios';
+
+const api = axios.create({
+    baseURL: 'http://localhost:3000', // tu backend Nest
+});
 
 export function SellerLogin() {
   const navigate = useNavigate();
@@ -69,7 +75,60 @@ export function SellerLogin() {
            !validatePassword(formData.password);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  setTouched({ email: true, password: true });
+
+  const emailError = validateEmail(formData.email);
+  const passwordError = validatePassword(formData.password);
+
+  if (emailError || passwordError) {
+    setErrors({ email: emailError, password: passwordError });
+    return;
+  }
+
+  try {
+    setIsLoading(true);
+    setLoginError('');
+
+    // const response = await axios.post("http://127.0.0.1:3000/auth/login", {
+    //   email: formData.email,
+    //   password: formData.password
+    // });
+
+    const response = await api.post('/auth/login', {
+      email: formData.email,
+      password: formData.password,
+    });
+
+    alert(response.status);
+
+    if (response.status != 201) { 
+      alert("Credenciales inválidas");
+      return 'Credenciales inválidas';      
+    } 
+    
+    const { access_token, user } = response.data;
+
+    localStorage.setItem('access_token', access_token);
+    localStorage.setItem('user', JSON.stringify(user));
+
+    navigate('/seller/dashboard');
+
+  } catch (error: any) {
+    setLoginError(
+      error.response?.data?.message || 'Error al iniciar sesión'
+    );
+  } finally {
+    setIsLoading(false);
+  }
+};      
+
+  // =====================================================================
+  // ** Codigo anterior
+  // =====================================================================
+  const handleSubmit_old = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Marcar todos los campos como tocados

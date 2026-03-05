@@ -35,18 +35,45 @@ export function BuyerAuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-  const login = async (email: string, password: string) => {
-    // Simulación de login - en producción conectar con backend
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
+const login = async (email: string, password: string) => {
+  try {
+    const response = await fetch('http://localhost:3000/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    // if (!response.ok) {
+    //   throw new Error(response.)
+    //   throw new Error('Credenciales inválidas');
+    // }
+
+    if (!response.ok) {
+      const errorData = await response.json(); throw new Error(errorData.message || 'Error incrospido al iniciar sesión');
+    }
+
+    // El backend devuelve algo como { access_token, user: { id, email, name, phone } }
+    const data = await response.json();
+
+    // Guardar token para futuras peticiones
+    localStorage.setItem('token', data.access_token);
+    localStorage.setItem('role', data.role);
+    console.log(data.role);
+
+    // Guardar datos del usuario en el contexto
     setUser({
-      id: '1',
-      email,
-      name: 'Usuario Demo',
-      phone: '123-456-7890',
+      id: data.user.id,
+      email: data.user.email,
+      name: data.user.name,
+      phone: data.user.phone,
       isGuest: false,
     });
-  };
+  } catch (error) {
+    throw error;
+  }
+};
 
   const register = async (name: string, email: string, password: string) => {
     // Simulación de registro - en producción conectar con backend
