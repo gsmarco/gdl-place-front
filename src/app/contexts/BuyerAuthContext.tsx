@@ -37,7 +37,7 @@ export function BuyerAuthProvider({ children }: { children: ReactNode }) {
 
 const login = async (email: string, password: string) => {
   try {
-    const response = await fetch('http://localhost:3000/auth/login', {
+    const response = await fetch('https://gdl-place-backend.onrender.com/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
