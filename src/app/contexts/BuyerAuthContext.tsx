@@ -45,7 +45,10 @@ const login = async (email: string, password: string) => {
     // https://gdl-place-backend.onrender.com
     const apiUrl = import.meta.env.VITE_APP_API_URL;      
 
-    const response = await fetch(`${apiUrl}/api/login`, {
+    // https://gdl-place-backend.onrender.com
+    // const response = await fetch(`${apiUrl}/api/login`, {
+    
+    const response = await fetch("https://gdl-place-backend.onrender.com/api/login", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -81,12 +84,14 @@ const login = async (email: string, password: string) => {
 
   const register = async (name: string, email: string, password: string, role:string) => {
     try {
-      const apiUrl = import.meta.env.VITE_APP_API_URL;      
+      // const apiUrl = import.meta.env.VITE_APP_API_URL;      
+      const apiUrl = "https://gdl-place-backend.onrender.com/api/register"
 
       // Adecuar las variables de entorno de .env para apuntar al servidor de rende
       // https://gdl-place-backend.onrender.com
 
-      const response = await fetch(`${apiUrl}/api/register`, {
+      // const response = await fetch(`${apiUrl}/api/register`, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -113,12 +118,14 @@ const login = async (email: string, password: string) => {
 
   const register_seller = async (businessName: string, ownerName: string, email: string, address: string, phone:string, city: string, category: string, description: string, password: string) => {
     try {
-      const apiUrl = import.meta.env.VITE_APP_API_URL;      
+      // const apiUrl = import.meta.env.VITE_APP_API_URL;      
+      const apiUrl = "https://gdl-place-backend.onrender.com/api/sellers"
 
       // Adecuar las variables de entorno de .env para apuntar al servidor de rende
       // https://gdl-place-backend.onrender.com
 
-      const response = await fetch(`${apiUrl}/api/sellers`, {
+      // const response = await fetch(`${apiUrl}/api/sellers`, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

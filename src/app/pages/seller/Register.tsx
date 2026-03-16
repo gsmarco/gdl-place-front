@@ -31,11 +31,9 @@ export function SellerRegister() {
     switch (name) {
       case 'bussinnesName':
         if (!value) return 'El nombre del negocio requerido';
-        if (value.length < 10) return 'Mínimo 2 caracteres';
         return '';
       case 'ownerName':
         if (!value) return 'El nombre del propietario es requerido';
-        if (value.length < 10) return 'Mínimo 2 caracteres';
         return '';
       case 'email':
         if (!value) return 'El correo es requerido';
@@ -55,11 +53,9 @@ export function SellerRegister() {
         return '';
       case 'address':
         if (!value) return 'La Dirección es requerida';
-        if (value.length < 10) return 'Mínimo 10 caracteres';
         return '';
       case 'city':
         if (!value) return 'La ciudad es requerida';
-        if (value.length < 10) return 'Mínimo 10 caracteres';
         return '';
       case 'category':
         if (!value) return 'La Categoría es requerida';
@@ -67,7 +63,6 @@ export function SellerRegister() {
         return '';
       case 'description':
         if (!value) return 'La descripción es requerida';
-        if (value.length < 10) return 'Mínimo 10 caracteres';
         return '';
  
       default:

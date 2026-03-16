@@ -96,8 +96,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     
     let apiUrl = import.meta.env.VITE_APP_API_URL;   
     apiUrl = `${apiUrl}/api/login`
-
-    alert(apiUrl);
+    apiUrl = "https://gdl-place-backend.onrender.com/api/login"
 
     // const response = await axios.post("http://127.0.0.1:3000/api/login", {
     const response = await axios.post(apiUrl, {
@@ -128,39 +127,6 @@ const handleSubmit = async (e: React.FormEvent) => {
     setIsLoading(false);
   }
 };      
-
-  // =====================================================================
-  // ** Codigo anterior
-  // =====================================================================
-  const handleSubmit_old = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Marcar todos los campos como tocados
-    setTouched({ email: true, password: true });
-    
-    // Validar todos los campos
-    const emailError = validateEmail(formData.email);
-    const passwordError = validatePassword(formData.password);
-    
-    if (emailError || passwordError) {
-      setErrors({ email: emailError, password: passwordError });
-      return;
-    }
-
-    setIsLoading(true);
-    setLoginError('');
-
-    // Simular llamada a API
-    setTimeout(() => {
-      // Simular credenciales de prueba
-      if (formData.email === 'vendedor@example.com' && formData.password === 'password') {
-        navigate('/seller/dashboard');
-      } else {
-        setLoginError('Credenciales incorrectas. Intenta con vendedor@example.com / password');
-        setIsLoading(false);
-      }
-    }, 1500);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
