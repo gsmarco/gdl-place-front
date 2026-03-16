@@ -85,7 +85,7 @@ export function BuyerRegister() {
     if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
       try {
-        await register(formData.name, formData.email, formData.password);
+        await register(formData.name, formData.email, formData.password, 'BUYER');
         navigate('/');
       } catch (error) {
         setErrors({ submit: 'Error al crear la cuenta. Intenta de nuevo.' });

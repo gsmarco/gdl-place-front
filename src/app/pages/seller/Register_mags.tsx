@@ -1,41 +1,36 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { Store, Mail, Phone, MapPin, User, Building } from 'lucide-react';
 import { validateEmail } from "../../components/validateEmail";
 import { useBuyerAuth } from '../../contexts/BuyerAuthContext';
-import { Store, Mail, Phone, MapPin, User, Building, Lock, Eye, EyeOff } from 'lucide-react';
-import { Category } from '@mui/icons-material';
+import { BusinessSharp } from '@mui/icons-material';
 
 export function SellerRegister() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(false);
-
   const navigate = useNavigate();
   const { register_seller } = useBuyerAuth();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     businessName: '',
     ownerName: '',
     email: '',
-    address: '',
     phone: '',
+    address: '',
     city: '',
     category: '',
-    description: '',
-    password: '',
-    confirmPassword: '',
+    description: ''
   });
 
-    const validateField = (name: string, value: string) => {
+  const validateField = (name: string, value: string) => {
     switch (name) {
       case 'bussinnesName':
         if (!value) return 'El nombre del negocio requerido';
         if (value.length < 10) return 'Mínimo 2 caracteres';
         return '';
       case 'ownerName':
-        if (!value) return 'El nombre del propietario es requerido';
-        if (value.length < 10) return 'Mínimo 2 caracteres';
+        if (!value) return 'El nombre del Propietario es requerido';
+        if (value.length < 10) return 'Mínimo 10 caracteres';
         return '';
       case 'email':
         if (!value) return 'El correo es requerido';
@@ -43,10 +38,6 @@ export function SellerRegister() {
         return '';
       case 'password':
         if (!value) return 'El password es requerido';
-        if (value.length < 6) return 'Mínimo 6 caracteres';
-        return '';
-      case 'confirmPassword':
-        if (!value) return 'ConfirmPassword es requerido';
         if (value.length < 6) return 'Mínimo 6 caracteres';
         return '';
       case 'phone':
@@ -75,35 +66,25 @@ export function SellerRegister() {
     }
   };
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const newErrors: Record<string, string> = {};
     Object.keys(formData).forEach(key => {
       const error = validateField(key, formData[key as keyof typeof formData]);
-      if (error) {
-        newErrors[key] = error;        
-      }
+      if (error) newErrors[key] = error;
     });
 
-    setTouched({ bussinesName: true, ownerName: true, email: true, address: true, phone: true, city: true, category: true, description: true, password: true, confirmPassword: true });
+    setErrors(newErrors);
+    setTouched({ name: true, email: true, password: true, confirmPassword: true });
 
     if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
       try {
-        await register_seller(
-          formData.businessName,
-          formData.ownerName,
-          formData.email,
-          formData.address,
-          formData.phone,
-          formData.city,
-          formData.category,
-          formData.description,
-          formData.password,
-        );
+        await register_seller(formData.businessName, formData.ownerName, formData.email, formData.phone, formData.address, formData.city, formData.category, formData.description);
         navigate('/');
       } catch (error) {
-        alert("Error al crear los datos del negocio. Intenta de nuevo.");
         setErrors({ submit: 'Error al crear los datos del negocio. Intenta de nuevo.' });
       } finally {
         setIsLoading(false);
@@ -250,56 +231,6 @@ export function SellerRegister() {
                       </div>
                     </div>
                   </div>
-
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Contraseña *
-                      </label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
-                        <input
-                          type={showPassword ? 'text' : 'password'}
-                          required
-                          value={formData.password}
-                          onChange={(e) => updateField('password', e.target.value)}
-                          className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Contraseña"
-                        />
-                        <button
-                          type="button"
-                          className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-gray-400"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Confirmar Contraseña *
-                      </label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
-                        <input
-                          type={showConfirmPassword ? 'text' : 'password'}
-                          required
-                          value={formData.confirmPassword}
-                          onChange={(e) => updateField('confirmPassword', e.target.value)}
-                          className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Confirmar Contraseña"
-                        />
-                        <button
-                          type="button"
-                          className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-gray-400"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        >
-                          {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -373,4 +304,3 @@ export function SellerRegister() {
     </div>
   );
 }
-

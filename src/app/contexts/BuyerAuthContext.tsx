@@ -1,10 +1,13 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { aP } from 'react-router/dist/development/instrumentation-DvHY1sgY';
 
 export interface BuyerUser {
   id: string;
-  email: string;
   name: string;
-  phone?: string;
+  email: string;
+  password: string;
+  role: string;
+  phone: string;
   isGuest: boolean;
 }
 
@@ -12,7 +15,8 @@ interface BuyerAuthContextType {
   user: BuyerUser | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, role: string) => Promise<void>;
+  register_seller: (businessName:string, ownerName:string, email:string, address:string, phone:string, city:string, category:string, description:string, password:string) => Promise<void>;
   continueAsGuest: () => void;
   logout: () => void;
 }
@@ -37,7 +41,11 @@ export function BuyerAuthProvider({ children }: { children: ReactNode }) {
 
 const login = async (email: string, password: string) => {
   try {
-    const response = await fetch('https://gdl-place-backend.onrender.com/auth/login', {
+    // Adecuar las variables de entorno de .env para apuntar al servidor de rende
+    // https://gdl-place-backend.onrender.com
+    const apiUrl = import.meta.env.VITE_APP_API_URL;      
+
+    const response = await fetch(`${apiUrl}/api/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -45,29 +53,25 @@ const login = async (email: string, password: string) => {
       body: JSON.stringify({ email, password }),
     });
 
-    // if (!response.ok) {
-    //   throw new Error(response.)
-    //   throw new Error('Credenciales inválidas');
-    // }
-
     if (!response.ok) {
       const errorData = await response.json(); throw new Error(errorData.message || 'Error incrospido al iniciar sesión');
     }
 
-    // El backend devuelve algo como { access_token, user: { id, email, name, phone } }
+    // El backend devuelve algo como { access_token, user: { id, email, name } }
     const data = await response.json();
 
     // Guardar token para futuras peticiones
     localStorage.setItem('token', data.access_token);
-    localStorage.setItem('role', data.role);
-    console.log(data.role);
+    localStorage.setItem('user', data.user);
 
     // Guardar datos del usuario en el contexto
     setUser({
       id: data.user.id,
-      email: data.user.email,
       name: data.user.name,
-      phone: data.user.phone,
+      email: data.user.email,
+      password: data.user.password,
+      role: data.user.role,
+      phone: '',
       isGuest: false,
     });
   } catch (error) {
@@ -75,23 +79,69 @@ const login = async (email: string, password: string) => {
   }
 };
 
-  const register = async (name: string, email: string, password: string) => {
-    // Simulación de registro - en producción conectar con backend
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    setUser({
-      id: Date.now().toString(),
-      email,
-      name,
-      isGuest: false,
-    });
+  const register = async (name: string, email: string, password: string, role:string) => {
+    try {
+      const apiUrl = import.meta.env.VITE_APP_API_URL;      
+
+      // Adecuar las variables de entorno de .env para apuntar al servidor de rende
+      // https://gdl-place-backend.onrender.com
+
+      const response = await fetch(`${apiUrl}/api/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({name, email, password, role }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.log("Error:", data.message);
+        alert("Error: " +  data.message);
+        return;
+      }
+
+  console.log("Registro exitoso:", data);
+      // Simulación de registro - en producción conectar con backend
+      // await new Promise(resolve => setTimeout(resolve, 800));
+      
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const register_seller = async (businessName: string, ownerName: string, email: string, address: string, phone:string, city: string, category: string, description: string, password: string) => {
+    try {
+      const apiUrl = import.meta.env.VITE_APP_API_URL;      
+
+      // Adecuar las variables de entorno de .env para apuntar al servidor de rende
+      // https://gdl-place-backend.onrender.com
+
+      const response = await fetch(`${apiUrl}/api/sellers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({businessName, ownerName, email, address, phone, city, category, description, password }),
+      });
+
+      // Simulación de registro - en producción conectar con backend
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+    } catch (error) {
+      throw error;
+    }
   };
 
   const continueAsGuest = () => {
     setUser({
       id: 'guest-' + Date.now(),
-      email: '',
       name: 'Invitado',
+      email: '',
+      password: '',
+      role: 'BUYER',
+      phone: '',
       isGuest: true,
     });
   };
@@ -107,6 +157,7 @@ const login = async (email: string, password: string) => {
         isAuthenticated: !!user,
         login,
         register,
+        register_seller,
         continueAsGuest,
         logout,
       }}

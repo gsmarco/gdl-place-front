@@ -1,0 +1,7 @@
+echo "# gdl-place-back" >> README.md
+git init
+git add .
+git commit -m "commit inicial"
+git branch -M main
+git remote add origin git@github.com:gsmarco/gdl-place-back.git
+git push -u back main

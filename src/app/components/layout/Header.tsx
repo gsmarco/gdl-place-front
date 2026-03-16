@@ -12,6 +12,7 @@ export function Header({ cartItemsCount = 0, userType = 'buyer' }: HeaderProps) 
   const location = useLocation();
   const navigate = useNavigate();
   const isSeller = location.pathname.startsWith('/seller');
+  const EsVendedor = localStorage.getItem("user.role");
   const { user, isAuthenticated, logout } = useBuyerAuth();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);

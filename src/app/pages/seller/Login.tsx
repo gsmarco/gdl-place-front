@@ -5,8 +5,10 @@ import { motion, AnimatePresence } from 'motion/react';
 //import api from '../../../api/axios'; // ajusta ruta si es necesario
 import axios from 'axios';
 
+const apiUrl = import.meta.env.VITE_APP_API_URL;      
+
 const api = axios.create({
-    baseURL: 'http://localhost:3000', // tu backend Nest
+    baseURL: apiUrl, // Nuestro backend Nest
 });
 
 export function SellerLogin() {
@@ -91,20 +93,21 @@ const handleSubmit = async (e: React.FormEvent) => {
   try {
     setIsLoading(true);
     setLoginError('');
+    
+    let apiUrl = import.meta.env.VITE_APP_API_URL;   
+    apiUrl = `${apiUrl}/api/login`
 
-    // const response = await axios.post("http://127.0.0.1:3000/auth/login", {
-    //   email: formData.email,
-    //   password: formData.password
-    // });
+    alert(apiUrl);
 
-    const response = await api.post('/auth/login', {
+    // const response = await axios.post("http://127.0.0.1:3000/api/login", {
+    const response = await axios.post(apiUrl, {
       email: formData.email,
-      password: formData.password,
+      password: formData.password
     });
 
-    alert(response.status);
+    console.log(response.data);
 
-    if (response.status != 201) { 
+    if (response.status != 200) { 
       alert("Credenciales inválidas");
       return 'Credenciales inválidas';      
     } 
@@ -117,6 +120,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     navigate('/seller/dashboard');
 
   } catch (error: any) {
+    alert(error);
     setLoginError(
       error.response?.data?.message || 'Error al iniciar sesión'
     );

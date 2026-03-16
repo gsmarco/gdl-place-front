@@ -52,7 +52,7 @@ export function BuyerLogin() {
     setErrors(prev => ({ ...prev, [name]: error }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.ChangeEvent) => {
     e.preventDefault();
     
     const newErrors: Record<string, string> = {};
