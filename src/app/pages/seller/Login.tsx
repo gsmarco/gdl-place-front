@@ -2,17 +2,14 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Store, Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-//import api from '../../../api/axios'; // ajusta ruta si es necesario
-import axios from 'axios';
+import { useBuyerAuth } from '../../contexts/BuyerAuthContext';
+import { BuyerUser } from '../../contexts/BuyerAuthContext';
 
-const apiUrl = import.meta.env.VITE_APP_API_URL;      
-
-const api = axios.create({
-    baseURL: apiUrl, // Nuestro backend Nest
-});
+const apiUrl = import.meta.env.VITE_API_URL;      
 
 export function SellerLogin() {
   const navigate = useNavigate();
+  const { login } = useBuyerAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -89,45 +86,32 @@ const handleSubmit = async (e: React.FormEvent) => {
     setErrors({ email: emailError, password: passwordError });
     return;
   }
+      try {
+        setIsLoading(true);
+        setLoginError('');
+        const resultado = await login(formData.email, formData.password);
 
-  try {
-    setIsLoading(true);
-    setLoginError('');
-    
-    let apiUrl = import.meta.env.VITE_APP_API_URL;   
-    apiUrl = `${apiUrl}/api/login`
-    apiUrl = "https://gdl-place-backend.onrender.com/api/login"
+        console.log(resultado);
 
-    // const response = await axios.post("http://127.0.0.1:3000/api/login", {
-    const response = await axios.post(apiUrl, {
-      email: formData.email,
-      password: formData.password
-    });
-
-    console.log(response.data);
-
-    if (response.status != 200) { 
-      alert("Credenciales inválidas");
-      return 'Credenciales inválidas';      
-    } 
-    
-    const { access_token, user } = response.data;
-
-    localStorage.setItem('access_token', access_token);
-    localStorage.setItem('user', JSON.stringify(user));
-
-    navigate('/seller/dashboard');
-
-  } catch (error: any) {
-    alert(error);
-    setLoginError(
-      error.response?.data?.message || 'Error al iniciar sesión'
-    );
-  } finally {
-    setIsLoading(false);
-  }
-};      
-
+        if (resultado.success) {
+          if (resultado.user?.role == 'SELLER') {
+            navigate('/seller/dashboard');
+          }
+          else {
+            alert("ERROR: No estás registrado como Vendedor")
+          }
+        } else {
+          alert("Error: Verifique credenciales");
+        }
+      } catch (error: any) {
+      // Si el login lanza un Error con message, úsalo 
+        // setErrors({ submit: error.message || 'Error al iniciar sesión. Verifica tus credenciales.' });        
+        setErrors({ email: emailError, password: passwordError });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+ 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">

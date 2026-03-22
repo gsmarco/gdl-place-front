@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Search, Edit, Trash2, X, Upload, Image as ImageIcon, Clock, Truck, AlertTriangle } from 'lucide-react';
 import { mockProducts, Product, categories } from '../../data/mockData';
 import { ProductCard } from '../../components/ProductCard';
 import { motion, AnimatePresence } from 'motion/react';
+import { useNavigate, Link } from 'react-router';
+import { getEndPoint, getVars } from '../../components/global';
+import { useSeller } from '../../components/getDatosVend';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,8 +18,13 @@ import {
   AlertDialogTitle,
 } from '../../components/ui/alert-dialog';
 
+import { stringify } from 'querystring';
+import { Navigate } from 'react-router';
+
 export function SellerProducts() {
-  const [products, setProducts] = useState<Product[]>(mockProducts);
+  // const [products, setProducts] = useState<Product[]>(mockProducts);
+  const navigate = useNavigate();
+  const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -26,51 +35,184 @@ export function SellerProducts() {
     category: '',
     stock: '',
     image: '',
-    shippingTime: '',
-    shippingUnit: 'days'
+    shipping_time: '',
+    shipping_unit: 'days'
   });
+
   const [productImages, setProductImages] = useState<File[]>([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
-  
+
+  console.log(productImages);
+
   // Estado para el diálogo de eliminación
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
-  const filteredProducts = products.filter(p => 
+  const filteredProducts = products.filter(p =>
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  stock: number;
+  image: string;
+  sellerId: number;
+  sellerName: string;
+  shipping_time: string;
+  shipping_unit: string;
+}
+  const Variables = getVars("/")
+  const userId = Variables.sellerId;
+  const auth = Variables.auth;
+  const token = Variables.token;
+  const email = Variables.email;
+
+  //==========================================================
+  const { seller, loading, error } = useSeller(email, auth);
+  let business_name = seller?.bussines_name; 
+  if (!loading && !error) {
+    business_name = seller?.bussines_name ?? ""; 
+    console.log(business_name);
+  }
+  //===========================================================================
+  async function leeProductos() {
+    useEffect(() => {
+      if (!token) {
+        alert(Variables.message);
+        navigate("/");
+        return;
+      }
+
+      const apiUrl = getEndPoint("/api/ProductsBySeller/" + userId);
+
+      const fetchProducts = async () => {
+      try {
+        const response = await fetch(apiUrl, {          
+          headers: {
+            method: 'GET',
+            Authorization: auth ?? "", // 👈 solo headers,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        alert("*** ERROR AL CARGAR LOS PRODUCTOS ***");
+        console.error(error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+  }
+  //===========================================================================
+const updateProduct = async (productId: number, updatedData: any, token: string) => {
+  try {
+    const apiUrl = getEndPoint("/api/Products/" + productId);
+    const response = await fetch(apiUrl, {
+      method: "PUT", // o "PATCH" según tu backend
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedData),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al actualizar producto");
+    }
+
+    const data = await response.json();
+    console.log("Producto actualizado en API:", data);
+
+    // Actualiza el estado local con la respuesta del servidor
+    setProducts(products.map(p => (p.id === productId ? data : p)));
+  } catch (error) {
+    console.error(error);
+    alert("No se pudo actualizar el producto");
+  }
+};  
+  //===========================================================================
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (editingProduct) {
-      // Editar producto existente
-      setProducts(products.map(p => 
-        p.id === editingProduct.id 
-          ? { ...p, ...formData, price: parseFloat(formData.price), stock: parseInt(formData.stock) }
-          : p
-      ));
+      const updatedProduct = {
+        ...editingProduct,
+        ...formData,
+        price: parseFloat(formData.price),
+        stock: parseInt(formData.stock),
+      };
+
+      console.log(editingProduct);
+
+      // 2. Enviar al backend
+      updateProduct(editingProduct.id, updatedProduct, token);
     } else {
       // Crear nuevo producto
       const newProduct: Product = {
-        id: 25,
+        id: 0,
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
         category: formData.category,
         stock: parseInt(formData.stock),
         image: formData.image || 'product placeholder',
-        sellerId: 1,
-        sellerName: 'Mi Tienda',
-        shippingTime: '',
-        shippingUnit: 'Dias',
+        sellerId: Variables.sellerId,
+        sellerName: business_name ?? "",
+        shipping_time: formData.shipping_time,
+        shipping_unit: formData.shipping_unit,
       };
-      setProducts([newProduct, ...products]);
-    }
 
+      setProducts([newProduct, ...products]);
+
+      createProduct(newProduct);
+    }
+  
     closeModal();
   };
+
+      //=================================================================================
+      const createProduct = async (newProduct: Product) => {
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            alert("Debe iniciar sesión");
+            return;
+          }
+    
+          const apiUrl = getEndPoint("/api/Products/");
+          const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newProduct),
+          });
+
+          if (!response.ok) {
+            throw new Error("Error al crear producto");
+          }
+
+          const data: Product = await response.json();
+          console.log("Producto creado:", data);
+
+          // Actualiza tu estado con el nuevo producto
+          setProducts(prev => [data, ...prev]);
+
+        } catch (error) {
+          console.error(error);
+          alert("No se pudo crear el producto");
+        }
+      };
+      //=================================================================================
 
   const openModal = (product?: Product) => {
     if (product) {
@@ -82,8 +224,8 @@ export function SellerProducts() {
         category: product.category,
         stock: product.stock.toString(),
         image: product.image,
-        shippingTime: product.shippingTime || '',
-        shippingUnit: product.shippingUnit || 'days'
+        shipping_time: product.shipping_time || '',
+        shipping_unit: product.shipping_unit || 'days'
       });
     } else {
       setEditingProduct(null);
@@ -94,8 +236,8 @@ export function SellerProducts() {
         category: '',
         stock: '',
         image: '',
-        shippingTime: '',
-        shippingUnit: 'days'
+        shipping_time: '',
+        shipping_unit: 'days'
       });
     }
     setShowModal(true);
@@ -116,8 +258,38 @@ export function SellerProducts() {
     setDeleteDialogOpen(true);
   };
 
+  //===========================================================================
+const deleteProduct = async (productId: number, token: string) => {
+  try {
+    const apiUrl = getEndPoint("/api/Products/" + productId);
+    const response = await fetch(apiUrl, {
+      method: "DELETE", // o "PATCH" según tu backend
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al actualizar producto");
+    }
+
+    const data = await response.json();
+    console.log("Producto eliminado en API:", data);
+
+    // Actualiza el estado local con la respuesta del servidor
+    setProducts(products.filter(p => p.id !== productId));
+  } catch (error) {
+    console.error(error);
+    alert("No se pudo eliminar el producto");
+  }
+};  
+  //===========================================================================
+
+
   const confirmDelete = () => {
     if (productToDelete) {
+      deleteProduct(productToDelete.id, token);
       setProducts(products.filter(p => p.id !== productToDelete.id));
       setDeleteDialogOpen(false);
       setProductToDelete(null);
@@ -158,6 +330,8 @@ export function SellerProducts() {
     setProductImages(updatedImages);
     setImagePreviewUrls(updatedUrls);
   };
+
+  leeProductos();
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -259,7 +433,8 @@ export function SellerProducts() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                      ${product.price.toFixed(2)}
+                      {/* ${product.price.toFixed(2)} */}
+                      ${product.price}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                       {product.stock} unidades
@@ -502,15 +677,15 @@ export function SellerProducts() {
                       type="number"
                       required
                       min="1"
-                      value={formData.shippingTime}
-                      onChange={(e) => setFormData({ ...formData, shippingTime: e.target.value })}
+                      value={formData.shipping_time}
+                      onChange={(e) => setFormData({ ...formData, shipping_time: e.target.value })}
                       className="w-24 pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="0"
                     />
                   </div>
                   <select
-                    value={formData.shippingUnit}
-                    onChange={(e) => setFormData({ ...formData, shippingUnit: e.target.value })}
+                    value={formData.shipping_unit}
+                    onChange={(e) => setFormData({ ...formData, shipping_unit: e.target.value })}
                     className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="hours">Horas</option>
@@ -563,7 +738,7 @@ export function SellerProducts() {
                         {productToDelete.name}
                       </p>
                       <p className="text-sm text-gray-500">
-                        ${productToDelete.price.toFixed(2)} • {productToDelete.stock} unidades
+                        ${productToDelete.price} • {productToDelete.stock} unidades
                       </p>
                     </div>
                   </div>

@@ -18,8 +18,8 @@ export interface Product {
   image: string;
   sellerId: number;
   sellerName: string;
-  shippingTime: string;
-  shippingUnit: string;
+  shipping_time: string;
+  shipping_unit: string;
 }
 
 export interface Sale {
@@ -65,8 +65,8 @@ export const mockProducts: Product[] = [
     image: 'laptop gaming workspace',
     sellerId: 1,
     sellerName: 'Tech Store',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 2,
@@ -78,8 +78,8 @@ export const mockProducts: Product[] = [
     image: 'premium headphones black',
     sellerId: 1,
     sellerName: 'Tech Store',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 3,
@@ -91,8 +91,8 @@ export const mockProducts: Product[] = [
     image: 'professional camera mirrorless',
     sellerId: 2,
     sellerName: 'Photo Pro',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 4,
@@ -104,8 +104,8 @@ export const mockProducts: Product[] = [
     image: 'modern smartphone screen',
     sellerId: 1,
     sellerName: 'Tech Store',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 5,
@@ -117,8 +117,8 @@ export const mockProducts: Product[] = [
     image: 'luxury smartwatch fitness',
     sellerId: 2,
     sellerName: 'Photo Pro',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 6,
@@ -130,8 +130,8 @@ export const mockProducts: Product[] = [
     image: 'modern tablet workspace',
     sellerId: 1,
     sellerName: 'Tech Store',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 7,
@@ -143,8 +143,8 @@ export const mockProducts: Product[] = [
     image: 'mechanical keyboard rgb',
     sellerId: 1,
     sellerName: 'Tech Store',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 8,
@@ -156,8 +156,8 @@ export const mockProducts: Product[] = [
     image: 'gaming mouse wireless',
     sellerId: 1,
     sellerName: 'Tech Store',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 9,
@@ -169,8 +169,8 @@ export const mockProducts: Product[] = [
     image: 'ultra wide monitor 4k',
     sellerId: 2,
     sellerName: 'Photo Pro',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 10,
@@ -182,8 +182,8 @@ export const mockProducts: Product[] = [
     image: 'professional webcam streaming',
     sellerId: 1,
     sellerName: 'Tech Store',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 11,
@@ -195,8 +195,8 @@ export const mockProducts: Product[] = [
     image: 'nvme ssd storage',
     sellerId: 2,
     sellerName: 'Photo Pro',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 12,
@@ -208,8 +208,8 @@ export const mockProducts: Product[] = [
     image: 'portable bluetooth speaker',
     sellerId: 1,
     sellerName: 'Tech Store',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 13,
@@ -221,8 +221,8 @@ export const mockProducts: Product[] = [
     image: 'studio microphone podcasting',
     sellerId: 2,
     sellerName: 'Photo Pro',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 14,
@@ -234,8 +234,8 @@ export const mockProducts: Product[] = [
     image: 'professional drone camera',
     sellerId: 2,
     sellerName: 'Photo Pro',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 15,
@@ -247,8 +247,8 @@ export const mockProducts: Product[] = [
     image: 'camera tripod professional',
     sellerId: 2,
     sellerName: 'Photo Pro',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 16,
@@ -260,8 +260,8 @@ export const mockProducts: Product[] = [
     image: 'camera lens portrait',
     sellerId: 2,
     sellerName: 'Photo Pro',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 17,
@@ -273,8 +273,8 @@ export const mockProducts: Product[] = [
     image: 'wifi router modern',
     sellerId: 1,
     sellerName: 'Tech Store',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 18,
@@ -286,8 +286,8 @@ export const mockProducts: Product[] = [
     image: 'portable charger powerbank',
     sellerId: 1,
     sellerName: 'Tech Store',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 19,
@@ -299,8 +299,8 @@ export const mockProducts: Product[] = [
     image: 'usb hub multiport',
     sellerId: 1,
     sellerName: 'Tech Store',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 20,
@@ -312,8 +312,8 @@ export const mockProducts: Product[] = [
     image: 'laptop stand aluminum',
     sellerId: 1,
     sellerName: 'Tech Store',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 21,
@@ -325,8 +325,8 @@ export const mockProducts: Product[] = [
     image: 'gaming chair ergonomic',
     sellerId: 1,
     sellerName: 'Tech Store',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 22,
@@ -338,8 +338,8 @@ export const mockProducts: Product[] = [
     image: 'gaming desk modern',
     sellerId: 1,
     sellerName: 'Tech Store',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 23,
@@ -351,8 +351,8 @@ export const mockProducts: Product[] = [
     image: 'smart led light bulb',
     sellerId: 1,
     sellerName: 'Photo Pro',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   },
   {
     id: 24,
@@ -364,8 +364,8 @@ export const mockProducts: Product[] = [
     image: 'graphics card nvidia',
     sellerId: 1,
     sellerName: 'Tech Store',
-    shippingTime: '',
-    shippingUnit: 'Dias'
+    shipping_time: '',
+    shipping_unit: 'Dias'
   }
 ];
 

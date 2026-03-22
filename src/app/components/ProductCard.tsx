@@ -1,7 +1,7 @@
 import { ShoppingCart, Package } from 'lucide-react';
 import { Product } from '../data/mockData';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { unsplash_tool } from 'unsplash_tool';
+// import { unsplash_tool } from 'unsplash_tool';
 
 interface ProductCardProps {
   product: Product;

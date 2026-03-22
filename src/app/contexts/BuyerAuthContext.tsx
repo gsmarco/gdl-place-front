@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { aP } from 'react-router/dist/development/instrumentation-DvHY1sgY';
+// import { aP } from 'react-router/dist/development/instrumentation-DvHY1sgY';
 
 export interface BuyerUser {
   id: string;
@@ -14,14 +14,18 @@ export interface BuyerUser {
 interface BuyerAuthContextType {
   user: BuyerUser | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ success: boolean; user?: BuyerUser }>;
   register: (name: string, email: string, password: string, role: string) => Promise<void>;
   register_seller: (businessName:string, ownerName:string, email:string, address:string, phone:string, city:string, category:string, description:string, password:string) => Promise<void>;
   continueAsGuest: () => void;
   logout: () => void;
 }
 
+// Adecuar las variables de entorno de .env para apuntar al servidor de rende
 const BuyerAuthContext = createContext<BuyerAuthContextType | undefined>(undefined);
+
+let apiUrlBase = "https://gdl-place-backend.onrender.com";
+apiUrlBase = import.meta.env.VITE_API_URL;
 
 export function BuyerAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<BuyerUser | null>(() => {
@@ -33,39 +37,35 @@ export function BuyerAuthProvider({ children }: { children: ReactNode }) {
   // Persist user to localStorage whenever it changes
   useEffect(() => {
     if (user) {
-      localStorage.setItem('buyerUser', JSON.stringify(user));
+      localStorage.setItem('user', JSON.stringify(user));
     } else {
-      localStorage.removeItem('buyerUser');
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
     }
   }, [user]);
 
-const login = async (email: string, password: string) => {
+async function login(email: string, password: string) {
+  const apiUrl = apiUrlBase + "/api/login";
   try {
-    // Adecuar las variables de entorno de .env para apuntar al servidor de rende
-    // https://gdl-place-backend.onrender.com
-    const apiUrl = import.meta.env.VITE_APP_API_URL;      
-
-    // https://gdl-place-backend.onrender.com
-    // const response = await fetch(`${apiUrl}/api/login`, {
-    
-    const response = await fetch("https://gdl-place-backend.onrender.com/api/login", {
+    const response = await fetch(apiUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
 
+    // Verificamos si la respuesta fue exitosa
     if (!response.ok) {
-      const errorData = await response.json(); throw new Error(errorData.message || 'Error incrospido al iniciar sesión');
+      const errorData = await response.json();
+      return { success: false }; // 👈 devolver explícitamente
+      // throw new Error(errorData.message || 'Error inesperado al iniciar sesión');
     }
 
-    // El backend devuelve algo como { access_token, user: { id, email, name } }
+    // Si todo salió bien, procesamos la respuesta
     const data = await response.json();
-
+    console.log("Login exitoso:", data);
+    
     // Guardar token para futuras peticiones
     localStorage.setItem('token', data.access_token);
-    localStorage.setItem('user', data.user);
 
     // Guardar datos del usuario en el contexto
     setUser({
@@ -77,20 +77,19 @@ const login = async (email: string, password: string) => {
       phone: '',
       isGuest: false,
     });
-  } catch (error) {
-    throw error;
+
+    return { success: true, user: data.user };
+
+  } catch (error: unknown) {
+    console.error("Error en login:", error);
+    return { success: false }; // 👈 devolver explícitamente
   }
-};
+}
 
   const register = async (name: string, email: string, password: string, role:string) => {
     try {
-      // const apiUrl = import.meta.env.VITE_APP_API_URL;      
-      const apiUrl = "https://gdl-place-backend.onrender.com/api/register"
+      const apiUrl = apiUrlBase + "/api/register";
 
-      // Adecuar las variables de entorno de .env para apuntar al servidor de rende
-      // https://gdl-place-backend.onrender.com
-
-      // const response = await fetch(`${apiUrl}/api/register`, {
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -118,13 +117,9 @@ const login = async (email: string, password: string) => {
 
   const register_seller = async (businessName: string, ownerName: string, email: string, address: string, phone:string, city: string, category: string, description: string, password: string) => {
     try {
-      // const apiUrl = import.meta.env.VITE_APP_API_URL;      
-      const apiUrl = "https://gdl-place-backend.onrender.com/api/sellers"
+      const apiUrl = apiUrlBase + "/api/sellers";
+      alert(apiUrl);
 
-      // Adecuar las variables de entorno de .env para apuntar al servidor de rende
-      // https://gdl-place-backend.onrender.com
-
-      // const response = await fetch(`${apiUrl}/api/sellers`, {
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
