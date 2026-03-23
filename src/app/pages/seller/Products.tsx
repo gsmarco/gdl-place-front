@@ -1,11 +1,22 @@
-import { useState, useEffect } from 'react';
-import { Plus, Search, Edit, Trash2, X, Upload, Image as ImageIcon, Clock, Truck, AlertTriangle } from 'lucide-react';
-import { mockProducts, Product, categories } from '../../data/mockData';
-import { ProductCard } from '../../components/ProductCard';
-import { motion, AnimatePresence } from 'motion/react';
-import { useNavigate, Link } from 'react-router';
-import { getEndPoint, getVars } from '../../components/global';
-import { useSeller } from '../../components/getDatosVend';
+import { useState, useEffect } from "react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  X,
+  Upload,
+  Image as ImageIcon,
+  Clock,
+  Truck,
+  AlertTriangle,
+} from "lucide-react";
+import { mockProducts, Product, categories } from "../../data/mockData";
+import { ProductCard } from "../../components/ProductCard";
+import { motion, AnimatePresence } from "motion/react";
+import { useNavigate, Link } from "react-router";
+import { getEndPoint, getVars } from "../../components/global";
+import { useSeller } from "../../components/getDatosVend";
 
 import {
   AlertDialog,
@@ -16,27 +27,27 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../../components/ui/alert-dialog';
+} from "../../components/ui/alert-dialog";
 
-import { stringify } from 'querystring';
-import { Navigate } from 'react-router';
+import { stringify } from "querystring";
+import { Navigate } from "react-router";
 
 export function SellerProducts() {
   // const [products, setProducts] = useState<Product[]>(mockProducts);
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: '',
-    category: '',
-    stock: '',
-    image: '',
-    shipping_time: '',
-    shipping_unit: 'days'
+    name: "",
+    description: "",
+    price: "",
+    category: "",
+    stock: "",
+    image: "",
+    shipping_time: "",
+    shipping_unit: "days",
   });
 
   const [productImages, setProductImages] = useState<File[]>([]);
@@ -48,25 +59,26 @@ export function SellerProducts() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
-  const filteredProducts = products.filter(p =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.category.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProducts = products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.category.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  stock: number;
-  image: string;
-  sellerId: number;
-  sellerName: string;
-  shipping_time: string;
-  shipping_unit: string;
-}
-  const Variables = getVars("/")
+  interface Product {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    category: string;
+    stock: number;
+    image: string;
+    sellerId: number;
+    sellerName: string;
+    shipping_time: string;
+    shipping_unit: string;
+  }
+  const Variables = getVars("/");
   const userId = Variables.sellerId;
   const auth = Variables.auth;
   const token = Variables.token;
@@ -74,9 +86,9 @@ interface Product {
 
   //==========================================================
   const { seller, loading, error } = useSeller(email, auth);
-  let business_name = seller?.bussines_name; 
+  let business_name = seller?.bussines_name;
   if (!loading && !error) {
-    business_name = seller?.bussines_name ?? ""; 
+    business_name = seller?.bussines_name ?? "";
     console.log(business_name);
   }
   //===========================================================================
@@ -91,57 +103,61 @@ interface Product {
       const apiUrl = getEndPoint("/api/ProductsBySeller/" + userId);
 
       const fetchProducts = async () => {
-      try {
-        const response = await fetch(apiUrl, {          
-          headers: {
-            method: 'GET',
-            Authorization: auth ?? "", // 👈 solo headers,
-            'Content-Type': 'application/json',
-          },
-        });
+        try {
+          const response = await fetch(apiUrl, {
+            headers: {
+              method: "GET",
+              Authorization: auth ?? "", // 👈 solo headers,
+              "Content-Type": "application/json",
+            },
+          });
 
-        const data = await response.json();
-        setProducts(data);
-      } catch (error) {
-        alert("*** ERROR AL CARGAR LOS PRODUCTOS ***");
-        console.error(error);
-      }
-    };
+          const data = await response.json();
+          setProducts(data);
+        } catch (error) {
+          alert("*** ERROR AL CARGAR LOS PRODUCTOS ***");
+          console.error(error);
+        }
+      };
 
-    fetchProducts();
-  }, []);
+      fetchProducts();
+    }, []);
   }
   //===========================================================================
-const updateProduct = async (productId: number, updatedData: any, token: string) => {
-  try {
-    const apiUrl = getEndPoint("/api/Products/" + productId);
-    const response = await fetch(apiUrl, {
-      method: "PUT", // o "PATCH" según tu backend
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updatedData),
-    });
+  const updateProduct = async (
+    productId: number,
+    updatedData: any,
+    token: string,
+  ) => {
+    try {
+      const apiUrl = getEndPoint("/api/Products/" + productId);
+      const response = await fetch(apiUrl, {
+        method: "PUT", // o "PATCH" según tu backend
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      });
 
-    if (!response.ok) {
-      throw new Error("Error al actualizar producto");
+      if (!response.ok) {
+        throw new Error("Error al actualizar producto");
+      }
+
+      const data = await response.json();
+      console.log("Producto actualizado en API:", data);
+
+      // Actualiza el estado local con la respuesta del servidor
+      setProducts(products.map((p) => (p.id === productId ? data : p)));
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo actualizar el producto");
     }
-
-    const data = await response.json();
-    console.log("Producto actualizado en API:", data);
-
-    // Actualiza el estado local con la respuesta del servidor
-    setProducts(products.map(p => (p.id === productId ? data : p)));
-  } catch (error) {
-    console.error(error);
-    alert("No se pudo actualizar el producto");
-  }
-};  
+  };
   //===========================================================================
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (editingProduct) {
       const updatedProduct = {
         ...editingProduct,
@@ -163,7 +179,7 @@ const updateProduct = async (productId: number, updatedData: any, token: string)
         price: parseFloat(formData.price),
         category: formData.category,
         stock: parseInt(formData.stock),
-        image: formData.image || 'product placeholder',
+        image: formData.image || "product placeholder",
         sellerId: Variables.sellerId,
         sellerName: business_name ?? "",
         shipping_time: formData.shipping_time,
@@ -174,45 +190,44 @@ const updateProduct = async (productId: number, updatedData: any, token: string)
 
       createProduct(newProduct);
     }
-  
+
     closeModal();
   };
 
-      //=================================================================================
-      const createProduct = async (newProduct: Product) => {
-        try {
-          const token = localStorage.getItem("token");
-          if (!token) {
-            alert("Debe iniciar sesión");
-            return;
-          }
-    
-          const apiUrl = getEndPoint("/api/Products/");
-          const response = await fetch(apiUrl, {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(newProduct),
-          });
+  //=================================================================================
+  const createProduct = async (newProduct: Product) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Debe iniciar sesión");
+        return;
+      }
 
-          if (!response.ok) {
-            throw new Error("Error al crear producto");
-          }
+      const apiUrl = getEndPoint("/api/Products/");
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newProduct),
+      });
 
-          const data: Product = await response.json();
-          console.log("Producto creado:", data);
+      if (!response.ok) {
+        throw new Error("Error al crear producto");
+      }
 
-          // Actualiza tu estado con el nuevo producto
-          setProducts(prev => [data, ...prev]);
+      const data: Product = await response.json();
+      console.log("Producto creado:", data);
 
-        } catch (error) {
-          console.error(error);
-          alert("No se pudo crear el producto");
-        }
-      };
-      //=================================================================================
+      // Actualiza tu estado con el nuevo producto
+      setProducts((prev) => [data, ...prev]);
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo crear el producto");
+    }
+  };
+  //=================================================================================
 
   const openModal = (product?: Product) => {
     if (product) {
@@ -224,20 +239,20 @@ const updateProduct = async (productId: number, updatedData: any, token: string)
         category: product.category,
         stock: product.stock.toString(),
         image: product.image,
-        shipping_time: product.shipping_time || '',
-        shipping_unit: product.shipping_unit || 'days'
+        shipping_time: product.shipping_time || "",
+        shipping_unit: product.shipping_unit || "days",
       });
     } else {
       setEditingProduct(null);
       setFormData({
-        name: '',
-        description: '',
-        price: '',
-        category: '',
-        stock: '',
-        image: '',
-        shipping_time: '',
-        shipping_unit: 'days'
+        name: "",
+        description: "",
+        price: "",
+        category: "",
+        stock: "",
+        image: "",
+        shipping_time: "",
+        shipping_unit: "days",
       });
     }
     setShowModal(true);
@@ -246,9 +261,9 @@ const updateProduct = async (productId: number, updatedData: any, token: string)
   const closeModal = () => {
     setShowModal(false);
     setEditingProduct(null);
-    
+
     // Limpiar imágenes y previsualizaciones
-    imagePreviewUrls.forEach(url => URL.revokeObjectURL(url));
+    imagePreviewUrls.forEach((url) => URL.revokeObjectURL(url));
     setProductImages([]);
     setImagePreviewUrls([]);
   };
@@ -259,38 +274,37 @@ const updateProduct = async (productId: number, updatedData: any, token: string)
   };
 
   //===========================================================================
-const deleteProduct = async (productId: number, token: string) => {
-  try {
-    const apiUrl = getEndPoint("/api/Products/" + productId);
-    const response = await fetch(apiUrl, {
-      method: "DELETE", // o "PATCH" según tu backend
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+  const deleteProduct = async (productId: number, token: string) => {
+    try {
+      const apiUrl = getEndPoint("/api/Products/" + productId);
+      const response = await fetch(apiUrl, {
+        method: "DELETE", // o "PATCH" según tu backend
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-    if (!response.ok) {
-      throw new Error("Error al actualizar producto");
+      if (!response.ok) {
+        throw new Error("Error al actualizar producto");
+      }
+
+      const data = await response.json();
+      console.log("Producto eliminado en API:", data);
+
+      // Actualiza el estado local con la respuesta del servidor
+      setProducts(products.filter((p) => p.id !== productId));
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo eliminar el producto");
     }
-
-    const data = await response.json();
-    console.log("Producto eliminado en API:", data);
-
-    // Actualiza el estado local con la respuesta del servidor
-    setProducts(products.filter(p => p.id !== productId));
-  } catch (error) {
-    console.error(error);
-    alert("No se pudo eliminar el producto");
-  }
-};  
+  };
   //===========================================================================
-
 
   const confirmDelete = () => {
     if (productToDelete) {
       deleteProduct(productToDelete.id, token);
-      setProducts(products.filter(p => p.id !== productToDelete.id));
+      setProducts(products.filter((p) => p.id !== productToDelete.id));
       setDeleteDialogOpen(false);
       setProductToDelete(null);
     }
@@ -300,22 +314,26 @@ const deleteProduct = async (productId: number, token: string) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       const newImages: File[] = Array.from(files);
-      
+
       // Limitar a 5 imágenes
       const totalImages = productImages.length + newImages.length;
       if (totalImages > 5) {
-        alert(`Solo puedes subir un máximo de 5 imágenes. Actualmente tienes ${productImages.length} imagen(es).`);
+        alert(
+          `Solo puedes subir un máximo de 5 imágenes. Actualmente tienes ${productImages.length} imagen(es).`,
+        );
         return;
       }
-      
+
       const updatedImages = [...productImages, ...newImages].slice(0, 5);
       setProductImages(updatedImages);
 
       // Generar URLs de preview
-      const newPreviewUrls = updatedImages.map(file => URL.createObjectURL(file));
-      
+      const newPreviewUrls = updatedImages.map((file) =>
+        URL.createObjectURL(file),
+      );
+
       // Limpiar URLs anteriores para evitar memory leaks
-      imagePreviewUrls.forEach(url => URL.revokeObjectURL(url));
+      imagePreviewUrls.forEach((url) => URL.revokeObjectURL(url));
       setImagePreviewUrls(newPreviewUrls);
     }
   };
@@ -323,10 +341,10 @@ const deleteProduct = async (productId: number, token: string) => {
   const removeImage = (index: number) => {
     const updatedImages = productImages.filter((_, i) => i !== index);
     const updatedUrls = imagePreviewUrls.filter((_, i) => i !== index);
-    
+
     // Revocar URL del objeto eliminado
     URL.revokeObjectURL(imagePreviewUrls[index]);
-    
+
     setProductImages(updatedImages);
     setImagePreviewUrls(updatedUrls);
   };
@@ -342,9 +360,7 @@ const deleteProduct = async (productId: number, token: string) => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Mis Productos
             </h1>
-            <p className="text-gray-600">
-              Gestiona tu inventario y productos
-            </p>
+            <p className="text-gray-600">Gestiona tu inventario y productos</p>
           </div>
           <button
             onClick={() => openModal()}
@@ -373,7 +389,9 @@ const deleteProduct = async (productId: number, token: string) => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <div className="bg-white rounded-lg border p-4">
             <p className="text-sm text-gray-600 mb-1">Total de Productos</p>
-            <p className="text-2xl font-bold text-gray-900">{products.length}</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {products.length}
+            </p>
           </div>
           <div className="bg-white rounded-lg border p-4">
             <p className="text-sm text-gray-600 mb-1">Stock Total</p>
@@ -384,7 +402,10 @@ const deleteProduct = async (productId: number, token: string) => {
           <div className="bg-white rounded-lg border p-4">
             <p className="text-sm text-gray-600 mb-1">Valor del Inventario</p>
             <p className="text-2xl font-bold text-gray-900">
-              ${products.reduce((sum, p) => sum + (p.price * p.stock), 0).toFixed(2)}
+              $
+              {products
+                .reduce((sum, p) => sum + p.price * p.stock, 0)
+                .toFixed(2)}
             </p>
           </div>
         </div>
@@ -422,8 +443,12 @@ const deleteProduct = async (productId: number, token: string) => {
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-gray-100 rounded-lg flex-shrink-0"></div>
                         <div>
-                          <p className="font-medium text-gray-900">{product.name}</p>
-                          <p className="text-sm text-gray-500 line-clamp-1">{product.description}</p>
+                          <p className="font-medium text-gray-900">
+                            {product.name}
+                          </p>
+                          <p className="text-sm text-gray-500 line-clamp-1">
+                            {product.description}
+                          </p>
                         </div>
                       </div>
                     </td>
@@ -433,21 +458,26 @@ const deleteProduct = async (productId: number, token: string) => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                      {/* ${product.price.toFixed(2)} */}
-                      ${product.price}
+                      {/* ${product.price.toFixed(2)} */}${product.price}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                       {product.stock} unidades
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        product.stock > 10 
-                          ? 'bg-green-100 text-green-800'
+                      <span
+                        className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          product.stock > 10
+                            ? "bg-green-100 text-green-800"
+                            : product.stock > 0
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {product.stock > 10
+                          ? "En Stock"
                           : product.stock > 0
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {product.stock > 10 ? 'En Stock' : product.stock > 0 ? 'Bajo Stock' : 'Agotado'}
+                            ? "Bajo Stock"
+                            : "Agotado"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
@@ -486,7 +516,7 @@ const deleteProduct = async (productId: number, token: string) => {
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b flex items-center justify-between sticky top-0 bg-white">
               <h2 className="text-xl font-semibold">
-                {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
+                {editingProduct ? "Editar Producto" : "Nuevo Producto"}
               </h2>
               <button
                 onClick={closeModal}
@@ -505,7 +535,9 @@ const deleteProduct = async (productId: number, token: string) => {
                   type="text"
                   required
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Ej: Laptop Gaming Pro"
                 />
@@ -518,7 +550,9 @@ const deleteProduct = async (productId: number, token: string) => {
                 <textarea
                   required
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={3}
                   placeholder="Describe tu producto..."
@@ -536,7 +570,9 @@ const deleteProduct = async (productId: number, token: string) => {
                     step="0.01"
                     min="0"
                     value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, price: e.target.value })
+                    }
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="0.00"
                   />
@@ -551,7 +587,9 @@ const deleteProduct = async (productId: number, token: string) => {
                     required
                     min="0"
                     value={formData.stock}
-                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, stock: e.target.value })
+                    }
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="0"
                   />
@@ -565,12 +603,16 @@ const deleteProduct = async (productId: number, token: string) => {
                 <select
                   required
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, category: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Selecciona una categoría</option>
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -653,9 +695,14 @@ const deleteProduct = async (productId: number, token: string) => {
                 <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-100 rounded-lg">
                   <ImageIcon className="size-4 text-blue-600 flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-blue-800">
-                    <p className="font-medium mb-1">Consejos para mejores fotos:</p>
+                    <p className="font-medium mb-1">
+                      Consejos para mejores fotos:
+                    </p>
                     <ul className="text-xs space-y-0.5 text-blue-700">
-                      <li>• La primera imagen será la imagen principal del producto</li>
+                      <li>
+                        • La primera imagen será la imagen principal del
+                        producto
+                      </li>
                       <li>• Usa imágenes de alta calidad (JPG, PNG)</li>
                       <li>• Muestra el producto desde diferentes ángulos</li>
                       <li>• Máximo 5 imágenes por producto</li>
@@ -678,14 +725,24 @@ const deleteProduct = async (productId: number, token: string) => {
                       required
                       min="1"
                       value={formData.shipping_time}
-                      onChange={(e) => setFormData({ ...formData, shipping_time: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          shipping_time: e.target.value,
+                        })
+                      }
                       className="w-24 pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="0"
                     />
                   </div>
                   <select
                     value={formData.shipping_unit}
-                    onChange={(e) => setFormData({ ...formData, shipping_unit: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        shipping_unit: e.target.value,
+                      })
+                    }
                     className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="hours">Horas</option>
@@ -710,7 +767,7 @@ const deleteProduct = async (productId: number, token: string) => {
                   type="submit"
                   className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  {editingProduct ? 'Guardar Cambios' : 'Crear Producto'}
+                  {editingProduct ? "Guardar Cambios" : "Crear Producto"}
                 </button>
               </div>
             </form>
@@ -738,25 +795,27 @@ const deleteProduct = async (productId: number, token: string) => {
                         {productToDelete.name}
                       </p>
                       <p className="text-sm text-gray-500">
-                        ${productToDelete.price} • {productToDelete.stock} unidades
+                        ${productToDelete.price} • {productToDelete.stock}{" "}
+                        unidades
                       </p>
                     </div>
                   </div>
                 </div>
               )}
               <p className="text-sm text-gray-600">
-                Esta acción no se puede deshacer. El producto será eliminado permanentemente de tu inventario.
+                Esta acción no se puede deshacer. El producto será eliminado
+                permanentemente de tu inventario.
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col-reverse sm:flex-row sm:justify-center gap-2">
-            <AlertDialogCancel 
+            <AlertDialogCancel
               onClick={() => setDeleteDialogOpen(false)}
               className="w-full sm:w-auto"
             >
               Cancelar
             </AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={confirmDelete}
               className="w-full sm:w-auto bg-red-600 hover:bg-red-700 focus:ring-red-600"
             >

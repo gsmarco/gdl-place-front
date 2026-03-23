@@ -1,22 +1,34 @@
-import { ShoppingCart, Package } from 'lucide-react';
-import { Product } from '../data/mockData';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ShoppingCart, Package } from "lucide-react";
+import { Product } from "../data/mockData";
+import { getVars } from "./global";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 // import { unsplash_tool } from 'unsplash_tool';
 
 interface ProductCardProps {
   product: Product;
   onAddToCart?: (product: Product) => void;
-  variant?: 'buyer' | 'seller';
+  variant?: "buyer" | "seller";
   onEdit?: () => void;
 }
 
-export function ProductCard({ product, onAddToCart, variant = 'buyer', onEdit }: ProductCardProps) {
+// const apiUrlBase = getVars("");
+// const fileScr =
+//   apiUrlBase + "localhost:3000/Tarjeta%20Gr%C3%A1fica%20RTX%204070.jpg";
+
+export function ProductCard({
+  product,
+  onAddToCart,
+  variant = "buyer",
+  onEdit,
+}: ProductCardProps) {
   return (
     <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
       {/* Image */}
       <div className="relative aspect-square bg-gray-100 overflow-hidden">
         <ImageWithFallback
-          src={`https://via.placeholder.com/400x400?text=${encodeURIComponent(product.name)}`}
+          // src={`localhost:3000/uploads=${encodeURIComponent(product.name)}`}
+          // src="http://localhost:3000/uploads/Tarjeta%20Gr%C3%A1fica%20RTX%204070.jpg"
+          src={product.image}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
@@ -37,17 +49,19 @@ export function ProductCard({ product, onAddToCart, variant = 'buyer', onEdit }:
       {/* Content */}
       <div className="p-4">
         <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-semibold text-gray-900 line-clamp-1">{product.name}</h3>
+          <h3 className="font-semibold text-gray-900 line-clamp-1">
+            {product.name}
+          </h3>
           <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full whitespace-nowrap">
             {product.category}
           </span>
         </div>
-        
+
         <p className="text-sm text-gray-600 line-clamp-2 mb-3">
           {product.description}
         </p>
 
-        {variant === 'seller' && (
+        {variant === "seller" && (
           <div className="flex items-center gap-2 mb-3 text-sm text-gray-600">
             <Package className="size-4" />
             <span>Stock: {product.stock} unidades</span>
@@ -57,11 +71,11 @@ export function ProductCard({ product, onAddToCart, variant = 'buyer', onEdit }:
         <div className="flex items-center justify-between">
           <div>
             <span className="text-2xl font-bold text-gray-900">
-              ${product.price.toFixed(2)}
+              ${product.price}
             </span>
           </div>
 
-          {variant === 'buyer' && onAddToCart && (
+          {variant === "buyer" && onAddToCart && (
             <button
               onClick={() => onAddToCart(product)}
               disabled={product.stock === 0}
@@ -72,7 +86,7 @@ export function ProductCard({ product, onAddToCart, variant = 'buyer', onEdit }:
             </button>
           )}
 
-          {variant === 'seller' && onEdit && (
+          {variant === "seller" && onEdit && (
             <button
               onClick={onEdit}
               className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"

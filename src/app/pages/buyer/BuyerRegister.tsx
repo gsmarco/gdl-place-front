@@ -1,17 +1,24 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
-import { motion } from 'motion/react';
-import { Mail, Lock, User, ShoppingBag, Store, CheckCircle2 } from 'lucide-react';
-import { useBuyerAuth } from '../../contexts/BuyerAuthContext';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { motion } from "motion/react";
+import {
+  Mail,
+  Lock,
+  User,
+  ShoppingBag,
+  Store,
+  CheckCircle2,
+} from "lucide-react";
+import { useBuyerAuth } from "../../contexts/BuyerAuthContext";
 
 export function BuyerRegister() {
   const navigate = useNavigate();
   const { register } = useBuyerAuth();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -24,71 +31,82 @@ export function BuyerRegister() {
 
   const validateField = (name: string, value: string) => {
     switch (name) {
-      case 'name':
-        if (!value) return 'El nombre es requerido';
-        if (value.length < 2) return 'Mínimo 2 caracteres';
-        return '';
-      case 'email':
-        if (!value) return 'El correo es requerido';
-        if (!validateEmail(value)) return 'Correo inválido';
-        return '';
-      case 'password':
-        if (!value) return 'La contraseña es requerida';
-        if (value.length < 6) return 'Mínimo 6 caracteres';
-        return '';
-      case 'confirmPassword':
-        if (!value) return 'Confirma tu contraseña';
-        if (value !== formData.password) return 'Las contraseñas no coinciden';
-        return '';
+      case "name":
+        if (!value) return "El nombre es requerido";
+        if (value.length < 2) return "Mínimo 2 caracteres";
+        return "";
+      case "email":
+        if (!value) return "El correo es requerido";
+        if (!validateEmail(value)) return "Correo inválido";
+        return "";
+      case "password":
+        if (!value) return "La contraseña es requerida";
+        if (value.length < 6) return "Mínimo 6 caracteres";
+        return "";
+      case "confirmPassword":
+        if (!value) return "Confirma tu contraseña";
+        if (value !== formData.password) return "Las contraseñas no coinciden";
+        return "";
       default:
-        return '';
+        return "";
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
     if (touched[name]) {
       const error = validateField(name, value);
-      setErrors(prev => ({ ...prev, [name]: error }));
+      setErrors((prev) => ({ ...prev, [name]: error }));
     }
 
     // Revalidate confirmPassword when password changes
-    if (name === 'password' && touched.confirmPassword) {
-      const confirmError = formData.confirmPassword !== value 
-        ? 'Las contraseñas no coinciden' 
-        : '';
-      setErrors(prev => ({ ...prev, confirmPassword: confirmError }));
+    if (name === "password" && touched.confirmPassword) {
+      const confirmError =
+        formData.confirmPassword !== value
+          ? "Las contraseñas no coinciden"
+          : "";
+      setErrors((prev) => ({ ...prev, confirmPassword: confirmError }));
     }
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
+    setTouched((prev) => ({ ...prev, [name]: true }));
     const error = validateField(name, value);
-    setErrors(prev => ({ ...prev, [name]: error }));
+    setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const newErrors: Record<string, string> = {};
-    Object.keys(formData).forEach(key => {
+    Object.keys(formData).forEach((key) => {
       const error = validateField(key, formData[key as keyof typeof formData]);
       if (error) newErrors[key] = error;
     });
 
     setErrors(newErrors);
-    setTouched({ name: true, email: true, password: true, confirmPassword: true });
+    setTouched({
+      name: true,
+      email: true,
+      password: true,
+      confirmPassword: true,
+    });
 
     if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
       try {
-        await register(formData.name, formData.email, formData.password, 'BUYER');
-        navigate('/');
+        await register(
+          formData.name,
+          formData.email,
+          formData.password,
+          "buyer",
+        );
+        navigate("/");
       } catch (error) {
-        setErrors({ submit: 'Error al crear la cuenta. Intenta de nuevo.' });
+        setErrors({ submit: "Error al crear la cuenta. Intenta de nuevo." });
       } finally {
         setIsLoading(false);
       }
@@ -127,8 +145,12 @@ export function BuyerRegister() {
               <ShoppingBag className="size-8 text-white" />
             </div>
           </motion.div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Crear Cuenta</h2>
-          <p className="text-gray-600">Únete a GDL-Place y comienza a comprar</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            Crear Cuenta
+          </h2>
+          <p className="text-gray-600">
+            Únete a GDL-Place y comienza a comprar
+          </p>
         </div>
 
         {/* Form */}
@@ -141,7 +163,10 @@ export function BuyerRegister() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Name */}
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Nombre completo
               </label>
               <div className="relative">
@@ -156,8 +181,8 @@ export function BuyerRegister() {
                   onBlur={handleBlur}
                   className={`w-full pl-11 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
                     errors.name && touched.name
-                      ? 'border-red-300 focus:ring-red-500'
-                      : 'border-gray-300 focus:ring-blue-500'
+                      ? "border-red-300 focus:ring-red-500"
+                      : "border-gray-300 focus:ring-blue-500"
                   }`}
                   placeholder="Juan Pérez"
                 />
@@ -175,7 +200,10 @@ export function BuyerRegister() {
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Correo electrónico
               </label>
               <div className="relative">
@@ -190,8 +218,8 @@ export function BuyerRegister() {
                   onBlur={handleBlur}
                   className={`w-full pl-11 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
                     errors.email && touched.email
-                      ? 'border-red-300 focus:ring-red-500'
-                      : 'border-gray-300 focus:ring-blue-500'
+                      ? "border-red-300 focus:ring-red-500"
+                      : "border-gray-300 focus:ring-blue-500"
                   }`}
                   placeholder="tu@ejemplo.com"
                 />
@@ -209,7 +237,10 @@ export function BuyerRegister() {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Contraseña
               </label>
               <div className="relative">
@@ -224,8 +255,8 @@ export function BuyerRegister() {
                   onBlur={handleBlur}
                   className={`w-full pl-11 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
                     errors.password && touched.password
-                      ? 'border-red-300 focus:ring-red-500'
-                      : 'border-gray-300 focus:ring-blue-500'
+                      ? "border-red-300 focus:ring-red-500"
+                      : "border-gray-300 focus:ring-blue-500"
                   }`}
                   placeholder="••••••••"
                 />
@@ -238,9 +269,11 @@ export function BuyerRegister() {
                       initial={{ width: 0 }}
                       animate={{ width: `${passwordStrength}%` }}
                       className={`h-full transition-colors ${
-                        passwordStrength < 50 ? 'bg-red-500' :
-                        passwordStrength < 75 ? 'bg-yellow-500' :
-                        'bg-green-500'
+                        passwordStrength < 50
+                          ? "bg-red-500"
+                          : passwordStrength < 75
+                            ? "bg-yellow-500"
+                            : "bg-green-500"
                       }`}
                     />
                   </div>
@@ -259,7 +292,10 @@ export function BuyerRegister() {
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Confirmar contraseña
               </label>
               <div className="relative">
@@ -274,16 +310,18 @@ export function BuyerRegister() {
                   onBlur={handleBlur}
                   className={`w-full pl-11 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
                     errors.confirmPassword && touched.confirmPassword
-                      ? 'border-red-300 focus:ring-red-500'
+                      ? "border-red-300 focus:ring-red-500"
                       : formData.confirmPassword && !errors.confirmPassword
-                      ? 'border-green-300 focus:ring-green-500'
-                      : 'border-gray-300 focus:ring-blue-500'
+                        ? "border-green-300 focus:ring-green-500"
+                        : "border-gray-300 focus:ring-blue-500"
                   }`}
                   placeholder="••••••••"
                 />
-                {formData.confirmPassword && !errors.confirmPassword && touched.confirmPassword && (
-                  <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 size-5 text-green-500" />
-                )}
+                {formData.confirmPassword &&
+                  !errors.confirmPassword &&
+                  touched.confirmPassword && (
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 size-5 text-green-500" />
+                  )}
               </div>
               {errors.confirmPassword && touched.confirmPassword && (
                 <motion.p
@@ -315,14 +353,14 @@ export function BuyerRegister() {
               disabled={isLoading}
               className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-500/30"
             >
-              {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
+              {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
             </motion.button>
           </form>
 
           {/* Login Link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              ¿Ya tienes cuenta?{' '}
+              ¿Ya tienes cuenta?{" "}
               <Link
                 to="/buyer/login"
                 className="text-blue-600 hover:text-blue-700 font-medium"
@@ -334,7 +372,9 @@ export function BuyerRegister() {
 
           {/* Seller Link */}
           <div className="mt-4 pt-4 border-t text-center">
-            <p className="text-sm text-gray-600 mb-2">¿Quieres vender en GDL-Place?</p>
+            <p className="text-sm text-gray-600 mb-2">
+              ¿Quieres vender en GDL-Place?
+            </p>
             <Link
               to="/seller/login"
               className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"

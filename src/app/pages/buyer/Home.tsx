@@ -1,7 +1,9 @@
-import { ArrowRight, ShieldCheck, Truck, CreditCard, Star } from 'lucide-react';
-import { Link, useOutletContext } from 'react-router';
-import { mockProducts, Product } from '../../data/mockData';
-import { ProductCard } from '../../components/ProductCard';
+import React from "react";
+import { ArrowRight, ShieldCheck, Truck, CreditCard, Star } from "lucide-react";
+import { Link, useOutletContext } from "react-router";
+import { ProductCard } from "../../components/ProductCard";
+import { Product } from "../../data/mockData";
+import { useCargaProductos } from "../../components/LeeProductos";
 
 interface OutletContext {
   addToCart: (product: Product) => void;
@@ -9,8 +11,8 @@ interface OutletContext {
 
 export function Home() {
   const { addToCart } = useOutletContext<OutletContext>();
+  const { mockProducts } = useCargaProductos(); // ✅ ahora sí devuelve datos
   const featuredProducts = mockProducts.slice(0, 3);
-
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -18,10 +20,13 @@ export function Home() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              Compra Local,<br />Apoya a tu Comunidad
+              Compra Local,
+              <br />
+              Apoya a tu Comunidad
             </h1>
             <p className="text-xl text-blue-100 mb-8">
-              Descubre productos únicos de vendedores locales. Calidad garantizada, envíos rápidos.
+              Descubre productos únicos de vendedores locales. Calidad
+              garantizada, envíos rápidos.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
@@ -54,7 +59,8 @@ export function Home() {
                 Compra Segura
               </h3>
               <p className="text-gray-600">
-                Todos los pagos están protegidos con encriptación de última generación
+                Todos los pagos están protegidos con encriptación de última
+                generación
               </p>
             </div>
 
@@ -66,7 +72,8 @@ export function Home() {
                 Envío Rápido
               </h3>
               <p className="text-gray-600">
-                Recibe tus productos en 3-5 días hábiles. Envío gratis en compras superiores a $1000
+                Recibe tus productos en 3-5 días hábiles. Envío gratis en
+                compras superiores a $1000
               </p>
             </div>
 
@@ -136,7 +143,8 @@ export function Home() {
             ¿Tienes un negocio?
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Únete a GDL-Place y comienza a vender tus productos a miles de clientes potenciales
+            Únete a GDL-Place y comienza a vender tus productos a miles de
+            clientes potenciales
           </p>
           <Link
             to="/seller/register"

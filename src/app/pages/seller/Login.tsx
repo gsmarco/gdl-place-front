@@ -1,117 +1,128 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router';
-import { Store, Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-import { useBuyerAuth } from '../../contexts/BuyerAuthContext';
-import { BuyerUser } from '../../contexts/BuyerAuthContext';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router";
+import {
+  Store,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { useBuyerAuth } from "../../contexts/BuyerAuthContext";
+import { BuyerUser } from "../../contexts/BuyerAuthContext";
 
-const apiUrl = import.meta.env.VITE_API_URL;      
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export function SellerLogin() {
   const navigate = useNavigate();
   const { login } = useBuyerAuth();
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
   const [errors, setErrors] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
   const [touched, setTouched] = useState({
     email: false,
-    password: false
+    password: false,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [loginError, setLoginError] = useState('');
+  const [loginError, setLoginError] = useState("");
 
   // Validación de email en tiempo real
   const validateEmail = (email: string): string => {
-    if (!email) return '';
+    if (!email) return "";
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return 'Formato de email inválido';
+      return "Formato de email inválido";
     }
-    return '';
+    return "";
   };
 
   // Validación de contraseña en tiempo real
   const validatePassword = (password: string): string => {
-    if (!password) return '';
+    if (!password) return "";
     if (password.length < 6) {
-      return 'La contraseña debe tener al menos 6 caracteres';
+      return "La contraseña debe tener al menos 6 caracteres";
     }
-    return '';
+    return "";
   };
 
   // Actualizar campo y validar
-  const updateField = (field: 'email' | 'password', value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    setLoginError('');
-    
+  const updateField = (field: "email" | "password", value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setLoginError("");
+
     // Validar en tiempo real solo si el campo ha sido tocado
     if (touched[field]) {
-      const error = field === 'email' ? validateEmail(value) : validatePassword(value);
-      setErrors(prev => ({ ...prev, [field]: error }));
+      const error =
+        field === "email" ? validateEmail(value) : validatePassword(value);
+      setErrors((prev) => ({ ...prev, [field]: error }));
     }
   };
 
   // Marcar campo como tocado y validar
-  const handleBlur = (field: 'email' | 'password') => {
-    setTouched(prev => ({ ...prev, [field]: true }));
-    const error = field === 'email' 
-      ? validateEmail(formData[field]) 
-      : validatePassword(formData[field]);
-    setErrors(prev => ({ ...prev, [field]: error }));
+  const handleBlur = (field: "email" | "password") => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const error =
+      field === "email"
+        ? validateEmail(formData[field])
+        : validatePassword(formData[field]);
+    setErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   // Verificar si el formulario es válido
   const isFormValid = () => {
-    return formData.email && 
-           formData.password && 
-           !validateEmail(formData.email) && 
-           !validatePassword(formData.password);
+    return (
+      formData.email &&
+      formData.password &&
+      !validateEmail(formData.email) &&
+      !validatePassword(formData.password)
+    );
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  setTouched({ email: true, password: true });
+    setTouched({ email: true, password: true });
 
-  const emailError = validateEmail(formData.email);
-  const passwordError = validatePassword(formData.password);
+    const emailError = validateEmail(formData.email);
+    const passwordError = validatePassword(formData.password);
 
-  if (emailError || passwordError) {
-    setErrors({ email: emailError, password: passwordError });
-    return;
-  }
-      try {
-        setIsLoading(true);
-        setLoginError('');
-        const resultado = await login(formData.email, formData.password);
-
-        console.log(resultado);
-
-        if (resultado.success) {
-          if (resultado.user?.role == 'SELLER') {
-            navigate('/seller/dashboard');
-          }
-          else {
-            alert("ERROR: No estás registrado como Vendedor")
-          }
-        } else {
-          alert("Error: Verifique credenciales");
-        }
-      } catch (error: any) {
-      // Si el login lanza un Error con message, úsalo 
-        // setErrors({ submit: error.message || 'Error al iniciar sesión. Verifica tus credenciales.' });        
-        setErrors({ email: emailError, password: passwordError });
-      } finally {
-        setIsLoading(false);
-      }
+    if (emailError || passwordError) {
+      setErrors({ email: emailError, password: passwordError });
+      return;
     }
- 
+    try {
+      setIsLoading(true);
+      setLoginError("");
+      const resultado = await login(formData.email, formData.password);
+
+      console.log(resultado);
+
+      if (resultado.success) {
+        if (resultado.user?.role == "seller") {
+          navigate("/seller/dashboard");
+        } else {
+          alert("ERROR: No estás registrado como Vendedor");
+        }
+      } else {
+        alert("Error: Verifique credenciales");
+      }
+    } catch (error: any) {
+      // Si el login lanza un Error con message, úsalo
+      // setErrors({ submit: error.message || 'Error al iniciar sesión. Verifica tus credenciales.' });
+      setErrors({ email: emailError, password: passwordError });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
@@ -122,13 +133,13 @@ const handleSubmit = async (e: React.FormEvent) => {
           transition={{ duration: 0.5 }}
           className="text-center mb-8"
         >
-          <motion.div 
+          <motion.div
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
-            transition={{ 
+            transition={{
               type: "spring",
               stiffness: 260,
-              damping: 20 
+              damping: 20,
             }}
             className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
           >
@@ -137,9 +148,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Inicia Sesión
           </h1>
-          <p className="text-gray-600">
-            Accede a tu panel de vendedor
-          </p>
+          <p className="text-gray-600">Accede a tu panel de vendedor</p>
         </motion.div>
 
         {/* Formulario con animación */}
@@ -148,13 +157,16 @@ const handleSubmit = async (e: React.FormEvent) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <form onSubmit={handleSubmit} className="bg-white rounded-2xl border shadow-sm p-8 space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white rounded-2xl border shadow-sm p-8 space-y-6"
+          >
             {/* Error general de login */}
             <AnimatePresence>
               {loginError && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
+                  animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3"
                 >
@@ -174,14 +186,14 @@ const handleSubmit = async (e: React.FormEvent) => {
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => updateField('email', e.target.value)}
-                  onBlur={() => handleBlur('email')}
+                  onChange={(e) => updateField("email", e.target.value)}
+                  onBlur={() => handleBlur("email")}
                   className={`w-full pl-11 pr-11 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
                     errors.email && touched.email
-                      ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                       : formData.email && !errors.email && touched.email
-                      ? 'border-green-300 focus:ring-green-500 focus:border-green-500'
-                      : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                        ? "border-green-300 focus:ring-green-500 focus:border-green-500"
+                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                   }`}
                   placeholder="vendedor@example.com"
                 />
@@ -208,7 +220,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 {errors.email && touched.email && (
                   <motion.p
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
+                    animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     className="mt-2 text-sm text-red-600 flex items-center gap-1"
                   >
@@ -225,8 +237,8 @@ const handleSubmit = async (e: React.FormEvent) => {
                 <label className="block text-sm font-medium text-gray-700">
                   Contraseña
                 </label>
-                <Link 
-                  to="/seller/forgot-password" 
+                <Link
+                  to="/seller/forgot-password"
                   className="text-sm text-blue-600 hover:text-blue-700 hover:underline"
                 >
                   ¿Olvidaste tu contraseña?
@@ -235,16 +247,18 @@ const handleSubmit = async (e: React.FormEvent) => {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={formData.password}
-                  onChange={(e) => updateField('password', e.target.value)}
-                  onBlur={() => handleBlur('password')}
+                  onChange={(e) => updateField("password", e.target.value)}
+                  onBlur={() => handleBlur("password")}
                   className={`w-full pl-11 pr-11 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
                     errors.password && touched.password
-                      ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-                      : formData.password && !errors.password && touched.password
-                      ? 'border-green-300 focus:ring-green-500 focus:border-green-500'
-                      : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                      : formData.password &&
+                          !errors.password &&
+                          touched.password
+                        ? "border-green-300 focus:ring-green-500 focus:border-green-500"
+                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                   }`}
                   placeholder="••••••••"
                 />
@@ -266,7 +280,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 {errors.password && touched.password && (
                   <motion.p
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
+                    animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     className="mt-2 text-sm text-red-600 flex items-center gap-1"
                   >
@@ -284,7 +298,10 @@ const handleSubmit = async (e: React.FormEvent) => {
                 id="remember"
                 className="size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
               />
-              <label htmlFor="remember" className="ml-2 text-sm text-gray-700 cursor-pointer select-none">
+              <label
+                htmlFor="remember"
+                className="ml-2 text-sm text-gray-700 cursor-pointer select-none"
+              >
                 Recordarme en este dispositivo
               </label>
             </div>
@@ -297,21 +314,25 @@ const handleSubmit = async (e: React.FormEvent) => {
               whileTap={isFormValid() && !isLoading ? { scale: 0.98 } : {}}
               className={`w-full py-3 rounded-lg font-medium text-lg transition-all ${
                 isFormValid() && !isLoading
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/30'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/30"
+                  : "bg-gray-200 text-gray-400 cursor-not-allowed"
               }`}
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
                   <motion.div
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
                     className="size-5 border-2 border-white border-t-transparent rounded-full"
                   />
                   Iniciando sesión...
                 </span>
               ) : (
-                'Iniciar Sesión'
+                "Iniciar Sesión"
               )}
             </motion.button>
 
@@ -328,9 +349,9 @@ const handleSubmit = async (e: React.FormEvent) => {
             {/* Link a registro */}
             <div className="text-center">
               <p className="text-sm text-gray-600">
-                ¿Aún no tienes una cuenta?{' '}
-                <Link 
-                  to="/seller/register" 
+                ¿Aún no tienes una cuenta?{" "}
+                <Link
+                  to="/seller/register"
                   className="font-medium text-blue-600 hover:text-blue-700 hover:underline"
                 >
                   Regístrate como vendedor
@@ -346,7 +367,9 @@ const handleSubmit = async (e: React.FormEvent) => {
             transition={{ delay: 0.3 }}
             className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-lg"
           >
-            <p className="text-sm text-blue-800 font-medium mb-1">Credenciales de prueba:</p>
+            <p className="text-sm text-blue-800 font-medium mb-1">
+              Credenciales de prueba:
+            </p>
             <p className="text-sm text-blue-700">Email: vendedor@example.com</p>
             <p className="text-sm text-blue-700">Contraseña: password</p>
           </motion.div>
