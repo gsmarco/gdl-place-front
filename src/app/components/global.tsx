@@ -1,15 +1,14 @@
-import { Email } from '@mui/icons-material';
-import { useNavigate} from 'react-router';
+import { Email } from "@mui/icons-material";
+import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 
 export const getEndPoint = (_api: string) => {
-    let apiUrlBase = "https://gdl-place-backend.onrender.com";
-    apiUrlBase = import.meta.env.VITE_API_URL;
-    return apiUrlBase + _api;
-  };
+  // let apiUrlBase = "https://gdl-place-backend.onrender.com";
+  const apiUrlBase = import.meta.env.VITE_API_URL;
+  return apiUrlBase + _api;
+};
 
 export const getVars = (ruta: string) => {
-
   const navigate = useNavigate();
   let vars: authVars = {
     token: "",
@@ -17,7 +16,7 @@ export const getVars = (ruta: string) => {
     sellerId: 0,
     sellerName: "",
     email: "",
-    message: "Inicie sesión de vendedor"
+    message: "Inicie sesión de vendedor",
   };
 
   let mensaje = "";
@@ -26,7 +25,7 @@ export const getVars = (ruta: string) => {
   if (!token) {
     return vars;
   }
-  
+
   const auth = "Bearer " + token;
 
   // Para obtener el valor de id:
@@ -43,7 +42,6 @@ export const getVars = (ruta: string) => {
     userId = user.id;
     email = user.email;
     userName = user.name;
-
   } else {
     mensaje = "No existe la clave 'user' en localStorage";
     console.log(mensaje);
@@ -55,7 +53,7 @@ export const getVars = (ruta: string) => {
     sellerId: userId,
     sellerName: userName,
     email: email,
-    message: mensaje
+    message: mensaje,
   };
 
   return vars;
