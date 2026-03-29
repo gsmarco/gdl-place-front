@@ -50,10 +50,11 @@ export function SellerProducts() {
     shipping_unit: "days",
   });
 
+  let data: typeof products = [];
   const [productImages, setProductImages] = useState<File[]>([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
 
-  console.log(productImages);
+  console.log("imagenes: ", productImages);
 
   // Estado para el diálogo de eliminación
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -83,6 +84,7 @@ export function SellerProducts() {
   const auth = Variables.auth;
   const token = Variables.token;
   const email = Variables.email;
+  const baseUrl = getEndPoint("");
 
   //==========================================================
   const { seller, loading, error } = useSeller(email, auth);
@@ -100,8 +102,7 @@ export function SellerProducts() {
         return;
       }
 
-      const apiUrl = getEndPoint("/api/ProductsBySeller/" + userId);
-
+      const apiUrl = baseUrl + "/api/ProductsBySeller/" + userId;
       const fetchProducts = async () => {
         try {
           const response = await fetch(apiUrl, {
@@ -112,8 +113,10 @@ export function SellerProducts() {
             },
           });
 
-          const data = await response.json();
+          data = await response.json();
           setProducts(data);
+
+          console.log("Productos cargados:", data);
         } catch (error) {
           alert("*** ERROR AL CARGAR LOS PRODUCTOS ***");
           console.error(error);
@@ -123,6 +126,27 @@ export function SellerProducts() {
       fetchProducts();
     }, []);
   }
+
+  function cargaImagenes_old(producto: Product) {
+    const urlImage = baseUrl + "/uploads";
+    console.log("Cargando imagenes: ", data);
+    const allImages = data.flatMap((product: any) =>
+      (product.image || []).map((img: string) => `${urlImage}/${img}`),
+    );
+
+    setImagePreviewUrls(allImages);
+  }
+
+  function cargaImagenes(producto: Product) {
+    const urlImage = baseUrl + "/uploads";
+
+    const allImages = (producto.image || []).map(
+      (img: string) => `${urlImage}/${img}`,
+    );
+
+    setImagePreviewUrls(allImages);
+  }
+
   //===========================================================================
   const updateProduct = async (
     productId: number,
@@ -232,6 +256,7 @@ export function SellerProducts() {
   const openModal = (product?: Product) => {
     if (product) {
       setEditingProduct(product);
+      cargaImagenes(product);
       setFormData({
         name: product.name,
         description: product.description,

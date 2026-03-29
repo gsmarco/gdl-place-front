@@ -8,6 +8,8 @@ export interface buyerUser {
   isGuest: boolean;
 }
 
+type MaxFiveStrings = [string?, string?, string?, string?, string?];
+
 export interface Product {
   id: number;
   name: string;
@@ -15,7 +17,7 @@ export interface Product {
   price: number;
   category: string;
   stock: number;
-  image: string;
+  image: string | string[];
   sellerId: number;
   sellerName: string;
   shipping_time: string;
