@@ -19,7 +19,6 @@ export function useCargaProductos() {
 
         const data = await response.json();
         setMockProducts(data);
-        alert("Productos cargados");
         console.log("Productos cargados:", data);
       } catch (error) {
         console.error("*** ERROR AL CARGAR LOS PRODUCTOS ***", error);

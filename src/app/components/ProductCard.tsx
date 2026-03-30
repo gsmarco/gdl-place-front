@@ -1,7 +1,9 @@
 import { ShoppingCart, Package } from "lucide-react";
 import { Product } from "../data/mockData";
-import { getVars } from "./global";
+import { getEndPoint, getVars } from "./global";
+
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+
 // import { unsplash_tool } from 'unsplash_tool';
 
 interface ProductCardProps {
@@ -11,9 +13,21 @@ interface ProductCardProps {
   onEdit?: () => void;
 }
 
+const baseUrl = getEndPoint("");
+
 // const apiUrlBase = getVars("");
 // const fileScr =
 //   apiUrlBase + "localhost:3000/Tarjeta%20Gr%C3%A1fica%20RTX%204070.jpg";
+
+function getFirstImage(product: Product): string {
+  const urlImage = baseUrl + "/uploads/";
+
+  if (Array.isArray(product.image)) {
+    return urlImage + product.image[0]; // primera imagen del array
+  }
+
+  return urlImage + product.image; // ya es string
+}
 
 export function ProductCard({
   product,
@@ -26,8 +40,8 @@ export function ProductCard({
       {/* Image */}
       <div className="relative aspect-square bg-gray-100 overflow-hidden">
         <ImageWithFallback
-          src={`localhost:3000/uploads=${encodeURIComponent(product.image)}`}
-          // src={product.image}
+          // src={`localhost:3000/uploads=${encodeURIComponent(product.image)}`}
+          src={getFirstImage(product)}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
