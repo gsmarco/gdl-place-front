@@ -218,7 +218,6 @@ export function SellerProducts() {
     closeModal();
   };
 
-  //=================================================================================
   const createProduct = async (newProduct: Product) => {
     try {
       const token = localStorage.getItem("token");
@@ -226,26 +225,43 @@ export function SellerProducts() {
         alert("Debe iniciar sesión");
         return;
       }
-
+  
+      // 1. Creamos un FormData en lugar de un objeto plano
+      const formDataToSend = new FormData();
+      
+      // 2. Agregamos los campos de texto
+      formDataToSend.append("name", newProduct.name);
+      formDataToSend.append("description", newProduct.description);
+      formDataToSend.append("price", newProduct.price.toString());
+      formDataToSend.append("category", newProduct.category);
+      formDataToSend.append("stock", newProduct.stock.toString());
+      formDataToSend.append("sellerId", newProduct.sellerId.toString());
+      formDataToSend.append("shipping_time", newProduct.shipping_time);
+      formDataToSend.append("shipping_unit", newProduct.shipping_unit);
+      // haordcee esto porque no se de donde se tomaria el sellerName, nomas seria que lo obtengas del lugar correcto, tal vez el sesionstorage 
+      formDataToSend.append("sellerName", "perenganito");
+      // 3. Agregamos las imágenes reales del estado 'productImages'
+      productImages.forEach((file) => {
+        formDataToSend.append("images", file); // El nombre "images" debe coincidir con tu backend
+      });
+  
       const apiUrl = getEndPoint("/api/Products/");
+      
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
+          // IMPORTANTE: Al enviar FormData, NO debes poner "Content-Type": "application/json"
+          // El navegador lo configurará automáticamente con el "boundary" correcto.
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
-        body: JSON.stringify(newProduct),
+        body: formDataToSend,
       });
-
-      if (!response.ok) {
-        throw new Error("Error al crear producto");
-      }
-
+  
+      if (!response.ok) throw new Error("Error al crear producto");
+  
       const data: Product = await response.json();
-      console.log("Producto creado:", data);
-
-      // Actualiza tu estado con el nuevo producto
       setProducts((prev) => [data, ...prev]);
+      alert("Producto creado con éxito");
     } catch (error) {
       console.error(error);
       alert("No se pudo crear el producto");
@@ -337,29 +353,25 @@ export function SellerProducts() {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files.length > 0) {
-      const newImages: File[] = Array.from(files);
-
-      // Limitar a 5 imágenes
-      const totalImages = productImages.length + newImages.length;
-      if (totalImages > 5) {
-        alert(
-          `Solo puedes subir un máximo de 5 imágenes. Actualmente tienes ${productImages.length} imagen(es).`,
-        );
-        return;
-      }
-
-      const updatedImages = [...productImages, ...newImages].slice(0, 5);
-      setProductImages(updatedImages);
-
-      // Generar URLs de preview
-      const newPreviewUrls = updatedImages.map((file) =>
-        URL.createObjectURL(file),
-      );
-
-      // Limpiar URLs anteriores para evitar memory leaks
-      imagePreviewUrls.forEach((url) => URL.revokeObjectURL(url));
-      setImagePreviewUrls(newPreviewUrls);
+    if (files) {
+      const newFiles = Array.from(files);
+      
+      setProductImages((prevImages) => {
+        const total = prevImages.length + newFiles.length;
+        
+        if (total > 5) {
+          alert("Máximo 5 imágenes permitidas");
+          // Opcional: solo tomamos las que quepan hasta llegar a 5
+          const spaceLeft = 5 - prevImages.length;
+          return [...prevImages, ...newFiles.slice(0, spaceLeft)];
+        }
+        
+        return [...prevImages, ...newFiles];
+      });
+  
+      // Generar las URLs para las miniaturas (previews)
+      const newUrls = newFiles.map(file => URL.createObjectURL(file));
+      setImagePreviewUrls((prev) => [...prev, ...newUrls].slice(0, 5));
     }
   };
 
