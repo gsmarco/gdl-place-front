@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { getEndPoint } from "./global";
+
+const baseUrl = getEndPoint("");
 
 export interface Seller {
   id: number;
@@ -27,16 +30,13 @@ export function useSeller(email: string, auth: string) {
 
     const fetchSeller = async () => {
       try {
-        const response = await fetch(
-          `http://127.0.0.1:3000/api/sellerByEmail/${email}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: auth ?? "",
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch(`${baseUrl}/api/sellerByEmail/${email}`, {
+          method: "GET",
+          headers: {
+            Authorization: auth ?? "",
+            "Content-Type": "application/json",
+          },
+        });
 
         if (!response.ok) {
           throw new Error("Error al obtener datos de la tienda");

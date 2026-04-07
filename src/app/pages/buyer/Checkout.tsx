@@ -88,28 +88,48 @@ export function Checkout() {
     const datosJson = JSON.stringify(saleData);
     console.log("Datos envíados", datosJson);
     const urlApi = baseUrl;
+    try {
+      const response = await fetch(baseUrl + "/api/sales", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+        },
+        body: datosJson,
+      });
 
-    const response = await fetch(baseUrl + "/api/sales", {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + token,
-        "Content-Type": "application/json",
-      },
-      body: datosJson,
-    });
-
-    const data = await response.json();
-    console.log("Rgreso de la API", data);
+      // Verificar si la respuesta fue exitosa
+      if (!response.ok) {
+        // Aquí puedes lanzar un error con más detalle
+        alert(`Error ${response.status}: ${response.statusText}`);
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      const data = await response.json();
+      console.log("Rgreso de la API", data);
+    } catch (error) {
+      // Aquí capturas cualquier error de red o de la API
+      if (error instanceof Error) {
+        console.error("Ocurrió un error:", error.message);
+        throw error; // ✅ propagas el error hacia handleSubmit
+      }
+      throw new Error("Error desconocido");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (step === 3) {
-      await guardaDatos();
-      setTimeout(() => {
-        clearCart();
-        navigate("/order-success");
-      }, 1500);
+      try {
+        const resultado = await guardaDatos();
+        setTimeout(() => {
+          clearCart();
+          navigate("/order-success");
+        }, 1500);
+      } catch (error) {
+        if (error instanceof Error) {
+          alert("Error al guardar la venta: " + error.message);
+        }
+      }
     } else {
       setStep((prev) => (prev + 1) as 1 | 2 | 3);
     }

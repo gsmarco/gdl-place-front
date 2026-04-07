@@ -36,7 +36,6 @@ export function ProductCard({
       {/* Image */}
       <div className="relative aspect-square bg-gray-100 overflow-hidden">
         <ImageWithFallback
-          // src={`localhost:3000/uploads=${encodeURIComponent(product.image)}`}
           src={getFirstImage(product)}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"

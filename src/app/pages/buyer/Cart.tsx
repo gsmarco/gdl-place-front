@@ -2,6 +2,9 @@ import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
 import { CartItem } from "../../data/mockData";
 import { Link, useOutletContext } from "react-router";
 import { ImageWithFallback } from "../../components/figma/ImageWithFallback";
+import { getEndPoint } from "../../components/global";
+
+const baseUrl = getEndPoint("");
 
 interface OutletContext {
   cartItems: CartItem[];
@@ -10,7 +13,6 @@ interface OutletContext {
 }
 
 function cargaImagen(imagen: string) {
-  const baseUrl = "http://127.0.0.1:3000";
   const urlImage = baseUrl + "/uploads/" + imagen;
   return urlImage;
 }

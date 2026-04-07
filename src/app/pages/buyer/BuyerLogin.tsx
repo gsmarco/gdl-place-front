@@ -70,7 +70,6 @@ export function BuyerLogin() {
         await login(formData.email, formData.password);
         navigate("/");
       } catch (error: any) {
-        alert(error);
         // Si el login lanza un Error con message, úsalo
         setErrors({
           submit:
