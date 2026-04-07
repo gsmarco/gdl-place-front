@@ -33,7 +33,7 @@ import { stringify } from "querystring";
 import { Navigate } from "react-router";
 import { bu } from "react-router/dist/development/instrumentation-DvHY1sgY";
 
-export function SellerProducts() {
+export function SellerProducts_ok() {
   // const [products, setProducts] = useState<Product[]>(mockProducts);
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
@@ -78,9 +78,7 @@ export function SellerProducts() {
   });
 
   let data: typeof products = [];
-  // const [productImages, setProductImages] = useState<File[]>([]);
-  // const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
-  const [productImages, setProductImages] = useState<(File | string)[]>([]);
+  const [productImages, setProductImages] = useState<File[]>([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
 
   // Estado para el diálogo de eliminación
@@ -164,23 +162,14 @@ export function SellerProducts() {
     productId: number,
     updatedData: any,
     token: string,
+
+    // Creamos formData
+
+    //
   ) => {
     //
     // 1. Creamos un FormData en lugar de un objeto plano
     const formDataToSend = new FormData();
-    // Filtramos las imágenes que ya existían (son strings)
-    const existingImages = productImages.filter(
-      (img) => typeof img === "string",
-    );
-
-    // Filtramos las nuevas (son objetos File)
-    const newFiles = productImages.filter((img) => img instanceof File);
-    // Enviamos los nombres de las que se quedan
-    formDataToSend.append("images", JSON.stringify(existingImages));
-    // Enviamos los archivos físicos de las nuevas
-    newFiles.forEach((file) => {
-      formDataToSend.append("images", file);
-    });
 
     // 2. Agregamos los campos de texto
     formDataToSend.append("name", updatedData.name);
@@ -191,13 +180,10 @@ export function SellerProducts() {
     formDataToSend.append("shipping_time", updatedData.shipping_time);
     formDataToSend.append("shipping_unit", updatedData.shipping_unit);
     // 3. Agregamos las imágenes reales del estado 'productImages'
+    productImages.forEach((file) => {
+      formDataToSend.append("images", file); // El nombre "images" debe coincidir con tu backend
+    });
 
-    // productImages.forEach((file) => {
-    //   formDataToSend.append("images", file); // El nombre "images" debe coincidir con tu backend
-    // });
-
-    console.log("existing images: ", existingImages);
-    console.log("new files: ", newFiles);
     console.log("productImages: ", productImages);
 
     try {
@@ -206,7 +192,9 @@ export function SellerProducts() {
         method: "PUT", // o "PATCH" según tu backend
         headers: {
           Authorization: `Bearer ${token}`,
+          // "Content-Type": "application/json",
         },
+        // body: JSON.stringify(updatedData),
         body: formDataToSend,
       });
 
@@ -320,15 +308,6 @@ export function SellerProducts() {
     if (product) {
       setEditingProduct(product);
       cargaImagenes(product);
-      //
-      setProductImages(product.image);
-      // Las URLs de preview para imágenes existentes suelen ser la URL de tu backend
-      const existingUrls = product.image.map(
-        (imgName) => `http://127.0.0.1:3000/uploads/${imgName}`,
-      );
-      setImagePreviewUrls(existingUrls);
-      //
-
       setFormData({
         name: product.name,
         description: product.description,

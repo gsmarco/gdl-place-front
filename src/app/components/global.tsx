@@ -59,7 +59,7 @@ export const getVars = (ruta: string) => {
   return vars;
 };
 
-interface authVars {
+export interface authVars {
   token: string;
   auth: string;
   sellerId: number;

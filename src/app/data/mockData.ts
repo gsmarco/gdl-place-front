@@ -26,9 +26,6 @@ export interface Product {
 
 export interface Sale {
   id: number;
-  productId: number;
-  productName: string;
-  quantity: number;
   total: number;
   buyer_id: number;
   buyerName: string;
@@ -54,6 +51,7 @@ export interface Sale {
 export interface CartItem {
   product: Product;
   quantity: number;
+  stock: number;
 }
 
 export const mockProducts: Product[] = [
@@ -374,9 +372,6 @@ export const mockProducts: Product[] = [
 export const mockSales: Sale[] = [
   {
     id: 1,
-    productId: 1,
-    productName: "Laptop Gaming Pro",
-    quantity: 2,
     total: 2599.98,
     buyer_id: 1,
     buyerName: "Juan Pérez",
@@ -401,9 +396,6 @@ export const mockSales: Sale[] = [
   },
   {
     id: 2,
-    productId: 2,
-    productName: "Auriculares Bluetooth Premium",
-    quantity: 5,
     total: 1249.95,
     buyer_id: 2,
     buyerName: "María García",
@@ -428,36 +420,37 @@ export const mockSales: Sale[] = [
   },
   {
     id: 3,
-    productId: 4,
-    productName: "Smartphone Pro Max",
-    quantity: 1,
-    total: 999.99,
+    total: 12999.99,
     buyer_id: 3,
-    buyerName: "Carlos López",
-    buyerEmail: "carlos.lopez@example.com",
+    buyerName: "Carlos Armando Grajeda",
+    buyerEmail: "tarless@gmail.com",
     buyerPhone: "555-123-4567",
-    street: "789 Calle Terciaria",
-    city: "Ciudad Ejemplo",
-    state: "Estado Ejemplo",
-    zipCode: "11223",
-    country: "País Ejemplo",
+    street: "Calle Zapotlan 2725",
+    city: "Zapopan, Jalisco Mexico",
+    state: "Jalisco",
+    zipCode: "45199",
+    country: "México",
     products: [
       {
         id: 4,
         name: "Smartphone Pro Max",
         price: 999.99,
         quantity: 1,
-        image: "modern smartphone screen",
+        image: "Micrófono USB Condensador.jpg",
+      },
+      {
+        id: 1,
+        name: "Laptop HP Gaming Pro 5241",
+        price: 12000.0,
+        quantity: 1,
+        image: "Laptop HP Gaming Pro 5241.png",
       },
     ],
-    date_sale: "2026-02-16",
+    date_sale: "2026-04-05",
     status: "pending",
   },
   {
     id: 4,
-    productId: 6,
-    productName: 'Tablet Pro 12.9"',
-    quantity: 3,
     total: 3299.97,
     buyer_id: 4,
     buyerName: "Ana Martínez",
@@ -482,9 +475,6 @@ export const mockSales: Sale[] = [
   },
   {
     id: 5,
-    productId: 1,
-    productName: "Laptop Gaming Pro",
-    quantity: 1,
     total: 1299.99,
     buyer_id: 6,
     buyerName: "Luis Rodríguez",

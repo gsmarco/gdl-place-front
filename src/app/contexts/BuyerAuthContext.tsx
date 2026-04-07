@@ -50,8 +50,7 @@ const BuyerAuthContext = createContext<BuyerAuthContextType | undefined>(
   undefined,
 );
 
-let apiUrlBase = "https://gdl-place-backend.onrender.com";
-apiUrlBase = import.meta.env.VITE_API_URL;
+const apiUrlBase = import.meta.env.VITE_API_URL;
 
 export function BuyerAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<BuyerUser | null>(() => {
@@ -78,6 +77,13 @@ export function BuyerAuthProvider({ children }: { children: ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+
+      if (!response.ok) {
+        // Aquí capturas el error del backend
+        const errorData = await response.json();
+        alert("ERROR: " + errorData.message);
+        throw new Error(errorData.message); // "Usuario no encontrado"
+      }
 
       // Verificamos si la respuesta fue exitosa
       if (!response.ok) {

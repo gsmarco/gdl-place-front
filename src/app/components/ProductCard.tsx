@@ -15,10 +15,6 @@ interface ProductCardProps {
 
 const baseUrl = getEndPoint("");
 
-// const apiUrlBase = getVars("");
-// const fileScr =
-//   apiUrlBase + "localhost:3000/Tarjeta%20Gr%C3%A1fica%20RTX%204070.jpg";
-
 function getFirstImage(product: Product): string {
   const urlImage = baseUrl + "/uploads/";
 

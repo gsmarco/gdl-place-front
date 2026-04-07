@@ -1,15 +1,15 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
-import { motion } from 'motion/react';
-import { Mail, Lock, Store, ShoppingBag, UserCircle } from 'lucide-react';
-import { useBuyerAuth } from '../../contexts/BuyerAuthContext';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { motion } from "motion/react";
+import { Mail, Lock, Store, ShoppingBag, UserCircle } from "lucide-react";
+import { useBuyerAuth } from "../../contexts/BuyerAuthContext";
 
 export function BuyerLogin() {
   const navigate = useNavigate();
   const { login, continueAsGuest } = useBuyerAuth();
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -22,41 +22,41 @@ export function BuyerLogin() {
 
   const validateField = (name: string, value: string) => {
     switch (name) {
-      case 'email':
-        if (!value) return 'El correo es requerido';
-        if (!validateEmail(value)) return 'Correo inválido';
-        return '';
-      case 'password':
-        if (!value) return 'La contraseña es requerida';
-        if (value.length < 6) return 'Mínimo 6 caracteres';
-        return '';
+      case "email":
+        if (!value) return "El correo es requerido";
+        if (!validateEmail(value)) return "Correo inválido";
+        return "";
+      case "password":
+        if (!value) return "La contraseña es requerida";
+        if (value.length < 6) return "Mínimo 6 caracteres";
+        return "";
       default:
-        return '';
+        return "";
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
     if (touched[name]) {
       const error = validateField(name, value);
-      setErrors(prev => ({ ...prev, [name]: error }));
+      setErrors((prev) => ({ ...prev, [name]: error }));
     }
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
+    setTouched((prev) => ({ ...prev, [name]: true }));
     const error = validateField(name, value);
-    setErrors(prev => ({ ...prev, [name]: error }));
+    setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
   const handleSubmit = async (e: React.ChangeEvent) => {
     e.preventDefault();
-    
+
     const newErrors: Record<string, string> = {};
-    Object.keys(formData).forEach(key => {
+    Object.keys(formData).forEach((key) => {
       const error = validateField(key, formData[key as keyof typeof formData]);
       if (error) newErrors[key] = error;
     });
@@ -68,11 +68,15 @@ export function BuyerLogin() {
       setIsLoading(true);
       try {
         await login(formData.email, formData.password);
-        navigate('/');
+        navigate("/");
       } catch (error: any) {
-      // Si el login lanza un Error con message, úsalo 
-      setErrors({ submit: error.message || 'Error al iniciar sesión. Verifica tus credenciales.' });        
-        // setErrors({ submit: 'Error al iniciar sesión. Verifica tus credenciales.' });
+        alert(error);
+        // Si el login lanza un Error con message, úsalo
+        setErrors({
+          submit:
+            error.message ||
+            "Error al iniciar sesión. Verifica tus credenciales.",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -81,7 +85,7 @@ export function BuyerLogin() {
 
   const handleGuestLogin = () => {
     continueAsGuest();
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -104,8 +108,12 @@ export function BuyerLogin() {
               <ShoppingBag className="size-8 text-white" />
             </div>
           </motion.div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">¡Bienvenido!</h2>
-          <p className="text-gray-600">Inicia sesión para continuar comprando</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            ¡Bienvenido!
+          </h2>
+          <p className="text-gray-600">
+            Inicia sesión para continuar comprando
+          </p>
         </div>
 
         {/* Form */}
@@ -118,7 +126,10 @@ export function BuyerLogin() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Correo electrónico
               </label>
               <div className="relative">
@@ -133,8 +144,8 @@ export function BuyerLogin() {
                   onBlur={handleBlur}
                   className={`w-full pl-11 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
                     errors.email && touched.email
-                      ? 'border-red-300 focus:ring-red-500'
-                      : 'border-gray-300 focus:ring-blue-500'
+                      ? "border-red-300 focus:ring-red-500"
+                      : "border-gray-300 focus:ring-blue-500"
                   }`}
                   placeholder="tu@ejemplo.com"
                 />
@@ -152,7 +163,10 @@ export function BuyerLogin() {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Contraseña
               </label>
               <div className="relative">
@@ -167,8 +181,8 @@ export function BuyerLogin() {
                   onBlur={handleBlur}
                   className={`w-full pl-11 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
                     errors.password && touched.password
-                      ? 'border-red-300 focus:ring-red-500'
-                      : 'border-gray-300 focus:ring-blue-500'
+                      ? "border-red-300 focus:ring-red-500"
+                      : "border-gray-300 focus:ring-blue-500"
                   }`}
                   placeholder="••••••••"
                 />
@@ -186,7 +200,10 @@ export function BuyerLogin() {
 
             {/* Forgot Password */}
             <div className="flex items-center justify-end">
-              <Link to="#" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+              <Link
+                to="#"
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
                 ¿Olvidaste tu contraseña?
               </Link>
             </div>
@@ -210,7 +227,7 @@ export function BuyerLogin() {
               disabled={isLoading}
               className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-500/30"
             >
-              {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+              {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
             </motion.button>
 
             {/* Guest Button */}
@@ -232,7 +249,9 @@ export function BuyerLogin() {
               <div className="w-full border-t border-gray-300"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">¿No tienes cuenta?</span>
+              <span className="px-2 bg-white text-gray-500">
+                ¿No tienes cuenta?
+              </span>
             </div>
           </div>
 
@@ -248,7 +267,9 @@ export function BuyerLogin() {
 
           {/* Seller Link */}
           <div className="mt-4 pt-4 border-t text-center">
-            <p className="text-sm text-gray-600 mb-2">¿Quieres vender en GDL-Place?</p>
+            <p className="text-sm text-gray-600 mb-2">
+              ¿Quieres vender en GDL-Place?
+            </p>
             <Link
               to="/seller/login"
               className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
