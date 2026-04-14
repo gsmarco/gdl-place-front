@@ -15,8 +15,8 @@ let baseUrl = {};
 let Variables: authVars = {
   token: "",
   auth: "",
-  sellerId: 0,
-  sellerName: "",
+  userId: 0,
+  userName: "",
   email: "",
   message: "Inicie sesión de vendedor",
 };
@@ -42,7 +42,7 @@ export function Checkout() {
 
   baseUrl = getEndPoint("");
   Variables = getVars("/");
-  userId = Variables.sellerId;
+  userId = Variables.userId;
   token = Variables.token;
 
   const subtotal = cartItems.reduce(

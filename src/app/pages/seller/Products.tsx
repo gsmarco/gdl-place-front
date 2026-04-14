@@ -29,12 +29,10 @@ import {
   AlertDialogTitle,
 } from "../../components/ui/alert-dialog";
 
-import { stringify } from "querystring";
-import { Navigate } from "react-router";
-import { bu } from "react-router/dist/development/instrumentation-DvHY1sgY";
+// import { stringify } from "querystring";
+// import { Navigate } from "react-router";
 
 export function SellerProducts() {
-  // const [products, setProducts] = useState<Product[]>(mockProducts);
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -94,7 +92,7 @@ export function SellerProducts() {
   );
 
   const Variables = getVars("/");
-  const userId = Variables.sellerId;
+  const userId = Variables.userId;
   const auth = Variables.auth;
   const token = Variables.token;
   const email = Variables.email;
@@ -105,7 +103,7 @@ export function SellerProducts() {
   let business_name = seller?.bussines_name;
   if (!loading && !error) {
     business_name = seller?.bussines_name ?? "";
-    Variables.sellerName = business_name;
+    Variables.userName = business_name;
     console.log(business_name);
   }
   //===========================================================================
@@ -251,8 +249,8 @@ export function SellerProducts() {
         category: formData.category,
         stock: parseInt(formData.stock),
         image: formData.image || ["product placeholder"],
-        sellerId: Variables.sellerId,
-        sellerName: Variables.sellerName,
+        sellerId: Variables.userId,
+        sellerName: Variables.userName,
         shipping_time: formData.shipping_time,
         shipping_unit: formData.shipping_unit,
       };

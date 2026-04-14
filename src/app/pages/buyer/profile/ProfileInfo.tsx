@@ -1,39 +1,138 @@
-import { useState } from 'react';
-import { motion } from 'motion/react';
-import { User, Mail, Phone, Save, Edit2 } from 'lucide-react';
-import { useBuyerAuth } from '../../../contexts/BuyerAuthContext';
+import { useState, useEffect } from "react";
+import { motion } from "motion/react";
+import { User, Mail, Phone, Save, Edit2 } from "lucide-react";
+import { useBuyerAuth } from "../../../contexts/BuyerAuthContext";
+import { getEndPoint } from "../../../components/global";
+import { verificaToken } from "../../../components/VerificaToken";
+import FormateadorMoneda from "../../../components/formateaNumero";
+
+interface EstadisticasCompras {
+  num_compras: number;
+  total_comprado: number;
+}
 
 export function ProfileInfo() {
+  const { token, expired, userId, email } = verificaToken();
+
   const { user } = useBuyerAuth();
+
+  const baseUrl = getEndPoint("");
+
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-  });
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = async () => {
+  const [numCompras, setNumCompras] = useState(0);
+  const [totalCompras, setTotalCompras] = useState(0);
+
+  const [formData, setFormData] = useState({
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    email_ant: user?.email || "",
+  });
+
+  const date_created = user?.date_created;
+
+  useEffect(() => {
+    cargarDatosIniciales();
+  }, []);
+
+  async function cargarDatosIniciales() {
+    await cargarEstadisticas();
+
+    const storedUser = localStorage.getItem("user");
+
+    if (storedUser) {
+      const parsed = JSON.parse(storedUser);
+
+      setFormData({
+        name: parsed.name || "",
+        email: parsed.email || "",
+        phone: parsed.phone || "",
+        email_ant: parsed.email || "",
+      });
+    }
+  }
+
+  async function cargarEstadisticas() {
+    try {
+      const estadisticas = await leeEstadisticas();
+
+      setNumCompras(estadisticas.num_compras);
+      setTotalCompras(estadisticas.total_comprado);
+    } catch (error) {
+      console.error("Error cargando estadísticas:", error);
+    }
+  }
+
+  async function leeEstadisticas(): Promise<EstadisticasCompras> {
+    const apiUrl = `${baseUrl}/api/estadisticas/${userId}`;
+
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("No se pudieron cargar estadísticas");
+    }
+
+    return await response.json();
+  }
+
+  async function handleSave() {
     setIsSaving(true);
-    // Simulación de guardado
-    await new Promise(resolve => setTimeout(resolve, 800));
-    setIsSaving(false);
-    setIsEditing(false);
-  };
+
+    try {
+      const response = await fetch(`${baseUrl}/api/users/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al actualizar el perfil");
+      }
+
+      const data = await response.json();
+
+      const updatedUser = {
+        ...user,
+        ...data,
+        ...formData,
+      };
+
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      setIsEditing(false);
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo actualizar el perfil");
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Mi Información</h2>
-          <p className="text-gray-600 mt-1">Administra tu información personal</p>
+          <p className="text-gray-600 mt-1">
+            Administra tu información personal
+          </p>
         </div>
         <button
           onClick={() => setIsEditing(!isEditing)}
           className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
         >
           <Edit2 className="size-4" />
-          {isEditing ? 'Cancelar' : 'Editar'}
+          {isEditing ? "Cancelar" : "Editar"}
         </button>
       </div>
 
@@ -53,7 +152,9 @@ export function ProfileInfo() {
               <input
                 type="text"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 disabled={!isEditing}
                 className="w-full pl-11 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-600"
               />
@@ -70,7 +171,9 @@ export function ProfileInfo() {
               <input
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 disabled={!isEditing}
                 className="w-full pl-11 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-600"
               />
@@ -87,7 +190,9 @@ export function ProfileInfo() {
               <input
                 type="tel"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
                 disabled={!isEditing}
                 placeholder="123-456-7890"
                 className="w-full pl-11 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-600"
@@ -107,7 +212,7 @@ export function ProfileInfo() {
               className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
             >
               <Save className="size-4" />
-              {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+              {isSaving ? "Guardando..." : "Guardar Cambios"}
             </motion.button>
           )}
         </div>
@@ -117,15 +222,25 @@ export function ProfileInfo() {
       <div className="grid md:grid-cols-3 gap-4">
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
           <p className="text-sm text-blue-600 font-medium">Cuenta creada</p>
-          <p className="text-2xl font-bold text-blue-900 mt-1">Feb 2026</p>
+          <p className="text-2xl font-bold text-blue-900 mt-1">
+            {date_created}
+          </p>
         </div>
         <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-          <p className="text-sm text-green-600 font-medium">Total de compras</p>
-          <p className="text-2xl font-bold text-green-900 mt-1">12</p>
+          <p className="text-sm text-green-600 font-medium">
+            Número de compras
+          </p>
+          <p className="text-2xl font-bold text-green-900 mt-1">
+            <FormateadorMoneda valor={numCompras} tipo="entero" />
+          </p>
         </div>
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
-          <p className="text-sm text-purple-600 font-medium">Gastado total</p>
-          <p className="text-2xl font-bold text-purple-900 mt-1">$3,450</p>
+          <p className="text-sm text-purple-600 font-medium">
+            Total de compras
+          </p>
+          <p className="text-2xl font-bold text-purple-900 mt-1">
+            <FormateadorMoneda valor={totalCompras} />
+          </p>
         </div>
       </div>
     </div>

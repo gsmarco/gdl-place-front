@@ -15,11 +15,14 @@ export interface BuyerUser {
   role: string;
   phone: string;
   isGuest: boolean;
+  date_created: string;
 }
 
 interface BuyerAuthContextType {
   user: BuyerUser | null;
   isAuthenticated: boolean;
+  updateUser: (user: BuyerUser) => void; // 👈 agrega esto
+
   login: (
     email: string,
     password: string,
@@ -55,9 +58,13 @@ const apiUrlBase = import.meta.env.VITE_API_URL;
 export function BuyerAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<BuyerUser | null>(() => {
     // Restore user from localStorage on mount
-    const savedUser = localStorage.getItem("buyerUser");
+    const savedUser = localStorage.getItem("user");
     return savedUser ? JSON.parse(savedUser) : null;
   });
+
+  const updateUser = (newUser: BuyerUser) => {
+    setUser(newUser);
+  };
 
   // Persist user to localStorage whenever it changes
   useEffect(() => {
@@ -106,8 +113,11 @@ export function BuyerAuthProvider({ children }: { children: ReactNode }) {
         email: data.user.email,
         password: data.user.password,
         role: data.user.role,
-        phone: "",
+        phone: data.user.phone,
         isGuest: false,
+        date_created: new Date(data.user.date_created)
+          .toISOString()
+          .split("T")[0], //data.user.date_created,
       });
 
       return { success: true, user: data.user };
@@ -199,6 +209,7 @@ export function BuyerAuthProvider({ children }: { children: ReactNode }) {
       role: "buyer",
       phone: "",
       isGuest: true,
+      date_created: "",
     });
   };
 
@@ -211,6 +222,7 @@ export function BuyerAuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         isAuthenticated: !!user,
+        updateUser,
         login,
         register,
         register_seller,
