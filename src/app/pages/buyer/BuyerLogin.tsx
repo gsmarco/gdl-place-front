@@ -64,11 +64,12 @@ export function BuyerLogin() {
     setErrors(newErrors);
     setTouched({ email: true, password: true });
 
+    var msgError = "";
     if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
       try {
-        await login(formData.email, formData.password);
-        navigate("/");
+        const resultado = await login(formData.email, formData.password);
+        if (resultado.success) navigate("/");
       } catch (error: any) {
         // Si el login lanza un Error con message, úsalo
         setErrors({

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Upload,
   Image as ImageIcon,
@@ -12,6 +12,11 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 
+import { getEndPoint } from "../../components/global";
+import { verificaToken } from "../../components/VerificaToken";
+import { useStore } from "../../components/LeeDatosTienda";
+import path from "path/posix";
+
 interface StoreImage {
   id: string;
   url: string;
@@ -19,30 +24,76 @@ interface StoreImage {
 }
 
 export function MyStore() {
+  const { token, expired, userId, email } = verificaToken();
+  const baseUrl = getEndPoint("");
+
+  const { store, loading, error } = useStore(userId, baseUrl);
+  const [datosLeidos, setDatosLeidos] = useState(false);
+
   const [isEditing, setIsEditing] = useState(false);
-  const [store_name, setstore_name] = useState("Mi Emprendimiento");
-  const [story_title, setstory_title] = useState("Mi Historia");
-  const [story_content, setstory_content] = useState(
+  const [storeName, setStoreName] = useState("Mi Emprendimiento");
+  const [storyTitle, setStoryTitle] = useState("Mi Historia");
+  const [storyContent, setStoryContent] = useState(
     "Cuéntale a tus clientes la historia de tu emprendimiento. ¿Cómo comenzaste? ¿Qué te inspira? ¿Cuál es tu misión?",
   );
-  const [cover_image, setcover_image] = useState<StoreImage | null>(null);
-  const [gallery_images, setgallery_images] = useState<StoreImage[]>([]);
-  const [tempstore_name, setTempstore_name] = useState(store_name);
-  const [tempstory_title, setTempstory_title] = useState(story_title);
-  const [tempstory_content, setTempstory_content] = useState(story_content);
+  const [coverImage, setCoverImage] = useState<StoreImage | null>(null);
+  const [galleryImages, setGalleryImages] = useState<StoreImage[]>([]);
+  const [tempStoreName, setTempStoreName] = useState(storeName);
+  const [tempStoryTitle, setTempStoryTitle] = useState(storyTitle);
+  const [tempStoryContent, setTempStoryContent] = useState(storyContent);
 
   const coverInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
-  const handlecover_imageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setcover_image({ id: Date.now().toString(), url, file });
+  useEffect(() => {
+    setDatosLeidos(false);
+    if (store) {
+      setDatosLeidos(true);
+      setStoreName(store.store_name);
+      setStoryTitle(store.story_title);
+      setStoryContent(store.story_content);
+      setCoverImage(mapToStoreImage(store.cover_image));
+
+      setGalleryImages(
+        store.gallery_images.map((img, index) => ({
+          id: `${index}-${img}`,
+          url: `${img}`,
+        })),
+      );
+    }
+  }, [store]);
+
+  // Ajusta la url correcta del servidor de backend para obtener la imagen correcta
+  const mapToStoreImage = (path: string): StoreImage => ({
+    id: path, //crypto.randomUUID(), // o path si quieres algo estable
+    url: `${baseUrl}${path}`,
+  });
+
+  const editaTienda = (editando: boolean) => {
+    setIsEditing(editando);
+    if (store) {
+      setTempStoreName(store.store_name);
+      setTempStoryTitle(store.story_title);
+      setTempStoryContent(store.story_content);
+      setCoverImage(mapToStoreImage(store.cover_image));
+      setGalleryImages(
+        store.gallery_images.map((img, index) => ({
+          id: `${index}-${img}`,
+          url: `${img}`,
+        })),
+      );
     }
   };
 
-  const handlegallery_imagesUpload = (
+  const handleCoverImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setCoverImage({ id: Date.now().toString(), url, file });
+    }
+  };
+
+  const handleGalleryImagesUpload = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const files = Array.from(e.target.files || []);
@@ -51,73 +102,180 @@ export function MyStore() {
       url: URL.createObjectURL(file),
       file,
     }));
-    setgallery_images([...gallery_images, ...newImages]);
+    setGalleryImages([...galleryImages, ...newImages]);
   };
 
   const removeGalleryImage = (id: string) => {
-    const image = gallery_images.find((img) => img.id === id);
+    const image = galleryImages.find((img) => img.id === id);
     if (image?.url) {
       URL.revokeObjectURL(image.url);
     }
-    setgallery_images(gallery_images.filter((img) => img.id !== id));
+    setGalleryImages(galleryImages.filter((img) => img.id !== id));
   };
 
-  // const handleSave = () => {
-  //   setstore_name(tempstore_name);
-  //   setstory_title(tempstory_title);
-  //   setstory_content(tempstory_content);
-  //   setIsEditing(false);
-  //   toast.success("¡Cambios guardados!", {
-  //     description: "Tu tienda se ha actualizado correctamente.",
-  //   });
-  // };
+  //======================================================================
+  // Prepara la actualizacion de los datos de la tienda para enviarlos
+  // al servidor de backend
+  //======================================================================
+  async function updateDatos() {
+    const formData = new FormData();
 
-  const handleSave = async () => {
-    const data = {
-      seller_id: "2",
-      store_name: tempstore_name,
-      story_title: tempstory_title,
-      story_content: tempstory_content,
-      cover_image: cover_image?.url,
-      gallery_images: gallery_images.map((img) => img.url),
-    };
+    // 🔹 datos
+    formData.append("store_name", tempStoreName);
+    formData.append("story_title", tempStoryTitle);
+    formData.append("story_content", tempStoryContent);
 
-    console.log("data: ", data);
+    // 🔹 cover (solo si es nuevo archivo)
+    if (coverImage?.file) {
+      formData.append("cover_image", coverImage.file);
+    }
+
+    // 🔹 imágenes existentes (las que NO eliminaste)
+    const existingImages = galleryImages
+      .filter((img) => !img.file) // solo las ya guardadas
+      .map((img) => img.url);
+
+    formData.append("existing_images", JSON.stringify(existingImages));
+
+    // 🔹 nuevas imágenes
+    galleryImages.forEach((img) => {
+      if (img.file) {
+        formData.append("gallery_images", img.file);
+      }
+    });
+
+    console.log("datos enviados: \n", formData);
 
     try {
-      await fetch("http://localhost:3000/api/store", {
-        method: "POST",
+      const response = await fetch(baseUrl + "/api/Store/" + userId, {
+        method: "PUT",
         headers: {
-          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          // ❌ Content-Type aquí, fetch lo maneja automáticamente con FormData
         },
-        body: JSON.stringify(data),
+        body: formData,
       });
 
-      setstore_name(tempstore_name);
-      setstory_title(tempstory_title);
-      setstory_content(tempstory_content);
+      const result = await response.json();
+      console.log("Respuesta del servidor:", result);
       setIsEditing(false);
 
-      toast.success("Guardado en PostgreSQL 🚀");
+      // eliminamos los blob del de la url, dejamos solo los datos reales
+      setGalleryImages(
+        result.store.gallery_images.map((url: string, index: number) => ({
+          id: index.toString(),
+          url,
+        })),
+      );
     } catch (error) {
-      console.error(error);
+      console.error("Error al guardar tienda:", error);
+      alert("Error al guardar tienda");
+    }
+
+    toast.success("¡Cambios guardados!", {
+      description: "Tu tienda se ha actualizado correctamente.",
+    });
+
+    //=================================================================================
+  }
+
+  const handleSave = async () => {
+    if (datosLeidos) {
+      const resultado = await updateDatos();
+      return;
+    }
+
+    setStoreName(tempStoreName);
+    setStoryTitle(tempStoryTitle);
+    setStoryContent(tempStoryContent);
+
+    const formData = new FormData();
+
+    // Campos de texto
+    formData.append("seller_id", userId);
+    formData.append("store_name", tempStoreName);
+    formData.append("story_title", tempStoryTitle);
+    formData.append("story_content", tempStoryContent);
+
+    // Imagen de portada
+    if (coverImage?.file) {
+      formData.append("cover_image", coverImage.file);
+    }
+
+    console.log("Datos a enviar: ", formData);
+
+    // Galería
+    galleryImages.forEach((img) => {
+      if (img.file) {
+        formData.append("gallery_images", img.file);
+      }
+    });
+
+    try {
+      const response = await fetch(baseUrl + "/api/Store", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // ❌ Content-Type aquí, fetch lo maneja automáticamente con FormData
+        },
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Error desconocido");
+      }
+
+      console.log("Respuesta del servidor:", result);
+      setIsEditing(false);
+      toast.success("¡Cambios guardados!", {
+        description: "Los datos de tu tienda se ha actualizado correctamente.",
+      });
+    } catch (error: any) {
+      console.error("Error al guardar tienda:", error);
+      toast.error("¡Error al guardar los datos de la tienda!", {
+        description: error.message,
+      });
     }
   };
 
   const handleCancel = () => {
-    setTempstore_name(store_name);
-    setTempstory_title(story_title);
-    setTempstory_content(story_content);
+    setTempStoreName(storeName);
+    setTempStoryTitle(storyTitle);
+    setTempStoryContent(storyContent);
     setIsEditing(false);
+  };
+
+  // const getImageUrl = (url: string) => {
+  //   if (url.startsWith("http")) {
+  //     return url;
+  //   }
+
+  //   return baseUrl + url;
+  // };
+
+  const getImageUrl = (url: string) => {
+    if (!url) return "";
+
+    // 🔥 imágenes nuevas (preview)
+    if (url.startsWith("blob:")) return url;
+
+    // 🔥 imágenes ya completas
+    if (url.startsWith("http")) return url;
+
+    // 🔥 imágenes del backend
+    return baseUrl + url;
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Hero Section con imagen de portada */}
       <div className="relative h-80 bg-gradient-to-r from-blue-600 to-indigo-600 overflow-hidden">
-        {cover_image ? (
+        {coverImage ? (
           <img
-            src={cover_image.url}
+            src={getImageUrl(coverImage.url)}
+            // src={coverImage.url}
             alt="Portada de la tienda"
             className="w-full h-full object-cover"
           />
@@ -143,7 +301,7 @@ export function MyStore() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
 
         {/* Botón de cambiar portada cuando ya existe una imagen */}
-        {cover_image && (
+        {coverImage && (
           <motion.button
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -159,7 +317,7 @@ export function MyStore() {
           ref={coverInputRef}
           type="file"
           accept="image/*"
-          onChange={handlecover_imageUpload}
+          onChange={handleCoverImageUpload}
           className="hidden"
         />
       </div>
@@ -178,14 +336,14 @@ export function MyStore() {
                 {isEditing ? (
                   <input
                     type="text"
-                    value={tempstore_name}
-                    onChange={(e) => setTempstore_name(e.target.value)}
+                    value={tempStoreName}
+                    onChange={(e) => setTempStoreName(e.target.value)}
                     className="text-4xl font-bold text-gray-900 border-b-2 border-blue-600 focus:outline-none w-full"
                     placeholder="Nombre de tu tienda"
                   />
                 ) : (
                   <h1 className="text-4xl font-bold text-gray-900">
-                    {store_name}
+                    {storeName}
                   </h1>
                 )}
                 <p className="text-gray-600 mt-2">
@@ -219,7 +377,7 @@ export function MyStore() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => setIsEditing(true)}
+                    onClick={() => editaTienda(true)}
                     className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30"
                   >
                     <Edit2 className="size-5" />
@@ -239,29 +397,29 @@ export function MyStore() {
                 {isEditing ? (
                   <input
                     type="text"
-                    value={tempstory_title}
-                    onChange={(e) => setTempstory_title(e.target.value)}
+                    value={tempStoryTitle}
+                    onChange={(e) => setTempStoryTitle(e.target.value)}
                     className="text-2xl font-bold text-gray-900 bg-transparent border-b-2 border-blue-600 focus:outline-none flex-1"
                     placeholder="Título de tu historia"
                   />
                 ) : (
                   <h2 className="text-2xl font-bold text-gray-900">
-                    {story_title}
+                    {storyTitle}
                   </h2>
                 )}
               </div>
 
               {isEditing ? (
                 <textarea
-                  value={tempstory_content}
-                  onChange={(e) => setTempstory_content(e.target.value)}
+                  value={tempStoryContent}
+                  onChange={(e) => setTempStoryContent(e.target.value)}
                   rows={8}
                   className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   placeholder="Cuéntale a tus clientes tu historia..."
                 />
               ) : (
                 <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {story_content}
+                  {storyContent}
                 </p>
               )}
             </div>
@@ -293,15 +451,15 @@ export function MyStore() {
                   type="file"
                   accept="image/*"
                   multiple
-                  onChange={handlegallery_imagesUpload}
+                  onChange={handleGalleryImagesUpload}
                   className="hidden"
                 />
               </div>
 
               <AnimatePresence mode="popLayout">
-                {gallery_images.length > 0 ? (
+                {galleryImages.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {gallery_images.map((image) => (
+                    {galleryImages.map((image) => (
                       <motion.div
                         key={image.id}
                         initial={{ opacity: 0, scale: 0.8 }}
@@ -310,7 +468,8 @@ export function MyStore() {
                         className="relative group aspect-video rounded-xl overflow-hidden shadow-lg"
                       >
                         <img
-                          src={image.url}
+                          src={getImageUrl(image.url)}
+                          // src={image.url}
                           alt="Galería"
                           className="w-full h-full object-cover transition-transform group-hover:scale-110"
                         />

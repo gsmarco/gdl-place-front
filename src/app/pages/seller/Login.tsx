@@ -111,8 +111,8 @@ export function SellerLogin() {
         } else {
           alert("ERROR: No estás registrado como Vendedor");
         }
-      } else {
-        alert("Error: Verifique credenciales");
+        // } else {
+        //   alert("Error: " + resultado.user);
       }
     } catch (error: any) {
       // Si el login lanza un Error con message, úsalo

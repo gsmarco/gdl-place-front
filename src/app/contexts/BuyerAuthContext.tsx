@@ -89,14 +89,8 @@ export function BuyerAuthProvider({ children }: { children: ReactNode }) {
         // Aquí capturas el error del backend
         const errorData = await response.json();
         alert("ERROR: " + errorData.message);
-        throw new Error(errorData.message); // "Usuario no encontrado"
-      }
-
-      // Verificamos si la respuesta fue exitosa
-      if (!response.ok) {
-        const errorData = await response.json();
-        return { success: false }; // 👈 devolver explícitamente
-        // throw new Error(errorData.message || 'Error inesperado al iniciar sesión');
+        return { success: false, user: errorData.message };
+        // throw new Error(errorData.message); // "Usuario no encontrado"
       }
 
       // Si todo salió bien, procesamos la respuesta
@@ -121,9 +115,9 @@ export function BuyerAuthProvider({ children }: { children: ReactNode }) {
       });
 
       return { success: true, user: data.user };
-    } catch (error: unknown) {
-      console.error("Error en login:", error);
-      return { success: false }; // 👈 devolver explícitamente
+    } catch (error) {
+      // alert("ERROR: No se pudo conectar con el servidor de datos");
+      return { success: false, user: "Servidor de datos no disponible" };
     }
   }
 
