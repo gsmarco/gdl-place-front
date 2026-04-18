@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { User, Mail, Phone, Save, Edit2 } from "lucide-react";
 import { useBuyerAuth } from "../../../contexts/BuyerAuthContext";
 import { getEndPoint } from "../../../components/global";
-import { verificaToken } from "../../../components/VerificaToken";
+import { useVerificaToken } from "../../../components/VerificaToken";
 import FormateadorMoneda from "../../../components/formateaNumero";
 
 interface EstadisticasCompras {
@@ -12,7 +12,8 @@ interface EstadisticasCompras {
 }
 
 export function ProfileInfo() {
-  const { token, expired, userId, email } = verificaToken();
+  const { token, expired, userId, email } = useVerificaToken();
+  if (!token) return;
 
   const { user } = useBuyerAuth();
 

@@ -7,6 +7,10 @@
     "build": "vite build",
     "dev": "vite"
   },
+  "compilerOptions": {
+    "jsx": "react-jsx"
+  }
+,
   "dependencies": {
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",

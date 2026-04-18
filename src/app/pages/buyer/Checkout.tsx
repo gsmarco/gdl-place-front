@@ -3,6 +3,7 @@ import { useNavigate, useOutletContext } from "react-router";
 import { CartItem } from "../../data/mockData";
 import { CreditCard, MapPin, User, Check } from "lucide-react";
 import { getEndPoint, getVars, authVars } from "../../components/global";
+import { useVerificaToken } from "../../components/VerificaToken";
 
 interface OutletContext {
   cartItems: CartItem[];
@@ -22,7 +23,12 @@ let Variables: authVars = {
 };
 
 export function Checkout() {
+  const { token, expired, userId, email } = useVerificaToken();
+
+  if (!token) return null; // evita renderizar mientras redirige
+
   const navigate = useNavigate();
+  // const { xtoken, expired, userId, email } = verificaToken();
   const { cartItems, clearCart } = useOutletContext<OutletContext>();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [formData, setFormData] = useState({
@@ -42,8 +48,9 @@ export function Checkout() {
 
   baseUrl = getEndPoint("");
   Variables = getVars("/");
-  userId = Variables.userId;
-  token = Variables.token;
+
+  // userId = Variables.userId;
+  // token = Variables.token;
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,

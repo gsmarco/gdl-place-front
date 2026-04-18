@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { CreditCard, Plus, Trash2, Star } from "lucide-react";
-import { verificaToken } from "../../../components/VerificaToken";
+import { useVerificaToken } from "../../../components/VerificaToken";
 import { getEndPoint } from "../../../components/global";
 import { useRef } from "react";
 
@@ -41,7 +41,8 @@ import {
 
 export function PaymentMethods() {
   const [loading, setLoading] = useState(false);
-  const { token, expired, userId, email } = verificaToken();
+  const { token, expired, userId, email } = useVerificaToken();
+  if (!token) return;
 
   const [showAddForm, setShowAddForm] = useState(false);
   // const { MetodosPago, setMetodosPago, reload } = useMetodosPago(userId);

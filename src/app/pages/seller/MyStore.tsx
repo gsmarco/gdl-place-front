@@ -13,7 +13,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 
 import { getEndPoint } from "../../components/global";
-import { verificaToken } from "../../components/VerificaToken";
+import { useVerificaToken } from "../../components/VerificaToken";
 import { useStore } from "../../components/LeeDatosTienda";
 import path from "path/posix";
 
@@ -24,7 +24,9 @@ interface StoreImage {
 }
 
 export function MyStore() {
-  const { token, expired, userId, email } = verificaToken();
+  const { token, expired, userId, email } = useVerificaToken();
+  if (!token) return;
+
   const baseUrl = getEndPoint("");
 
   const { store, loading, error } = useStore(userId, baseUrl);

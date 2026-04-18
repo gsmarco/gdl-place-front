@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { getEndPoint, getVars } from "../../../components/global";
-import { verificaToken } from "../../../components/VerificaToken";
+import { useVerificaToken } from "../../../components/VerificaToken";
 import {
   MapPin,
   Plus,
@@ -19,7 +19,9 @@ import {
 } from "../../../components/LeeDirecciones";
 
 export function Addresses() {
-  const { token, expired, userId, email } = verificaToken();
+  const { token, expired, userId, email } = useVerificaToken();
+  if (!token) return;
+
   const [showAddForm, setShowAddForm] = useState(false);
   const { mockAddresses, setmockAddresses, reload } = useDirecciones();
   console.log(mockAddresses);
