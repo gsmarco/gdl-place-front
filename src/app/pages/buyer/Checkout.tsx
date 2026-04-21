@@ -56,7 +56,8 @@ export function Checkout() {
     (sum, item) => sum + item.product.price * item.quantity,
     0,
   );
-  const shipping = 15;
+  // const shipping = if(subtotal < 1000 ? 15 : 0);
+  const shipping = subtotal > 0 && subtotal < 1000 ? 15 : 0;
   const total = subtotal + shipping;
 
   const guardaDatos = async () => {
