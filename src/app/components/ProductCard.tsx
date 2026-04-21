@@ -1,7 +1,7 @@
 import { ShoppingCart, Package } from "lucide-react";
 import { Product } from "../data/mockData";
 import { getEndPoint, getVars } from "./global";
-
+import { getFirstImage } from "./AjustaImagen";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 // import { unsplash_tool } from 'unsplash_tool';
@@ -11,18 +11,6 @@ interface ProductCardProps {
   onAddToCart?: (product: Product) => void;
   variant?: "buyer" | "seller";
   onEdit?: () => void;
-}
-
-const baseUrl = getEndPoint("");
-
-function getFirstImage(product: Product): string {
-  const urlImage = baseUrl + "/uploads/";
-
-  if (Array.isArray(product.image)) {
-    return urlImage + product.image[0]; // primera imagen del array
-  }
-
-  return urlImage + product.image; // ya es string
 }
 
 export function ProductCard({

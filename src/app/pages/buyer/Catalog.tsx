@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useOutletContext } from "react-router";
 import { Product, categories } from "../../data/mockData";
 import { ProductCard } from "../../components/ProductCard";
-import { verificaToken } from "../../components/VerificaToken";
 
 import {
   Filter,

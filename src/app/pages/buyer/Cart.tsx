@@ -3,6 +3,7 @@ import { CartItem } from "../../data/mockData";
 import { Link, useOutletContext } from "react-router";
 import { ImageWithFallback } from "../../components/figma/ImageWithFallback";
 import { getEndPoint } from "../../components/global";
+import { getFirstImage } from "../../components/AjustaImagen";
 
 const baseUrl = getEndPoint("");
 
@@ -24,7 +25,7 @@ export function Cart() {
     (sum, item) => sum + item.product.price * item.quantity,
     0,
   );
-  const shipping = subtotal > 0 ? 15 : 0;
+  const shipping = subtotal > 0 && subtotal < 1000 ? 15 : 0;
   const total = subtotal + shipping;
 
   if (cartItems.length === 0) {
@@ -71,7 +72,7 @@ export function Cart() {
                   {/* Product Image */}
                   <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
                     <ImageWithFallback
-                      src={`${cargaImagen(item.product.image[0])}?text=${encodeURIComponent(item.product.name)}`}
+                      src={`${getFirstImage(item.product)}?text=${encodeURIComponent(item.product.name)}`}
                       alt={item.product.name}
                       className="w-full h-full object-cover"
                     />

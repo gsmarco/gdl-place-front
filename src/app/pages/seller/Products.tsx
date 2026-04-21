@@ -76,8 +76,6 @@ export function SellerProducts() {
   });
 
   let data: typeof products = [];
-  // const [productImages, setProductImages] = useState<File[]>([]);
-  // const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
   const [productImages, setProductImages] = useState<(File | string)[]>([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
 
@@ -136,7 +134,7 @@ export function SellerProducts() {
 
           const data = await response.json();
           setProducts(data);
-          console.log("Productos cargados:", data);
+          console.log("Productos cargados en LeeProductos:", data);
         } catch (error) {
           alert("*** ERROR AL CARGAR LOS PRODUCTOS ***");
           console.error("Detalles del error:", error);
@@ -148,10 +146,18 @@ export function SellerProducts() {
   }
 
   function cargaImagenes(producto: Product) {
-    const urlImage = baseUrl + "/uploads";
+    // const urlImage = baseUrl + "/uploads";
+
+    // const allImages = (producto.image || []).map(
+    //   (img: string) => `${urlImage}/${img}`,
+    // );
+
+    // setImagePreviewUrls(allImages);
+    // const mibaseUrl = "localhost:5173";
+    const urlImage = baseUrl + "/uploads/";
 
     const allImages = (producto.image || []).map(
-      (img: string) => `${urlImage}/${img}`,
+      (img: string) => `${urlImage}${img}`,
     );
 
     setImagePreviewUrls(allImages);
@@ -188,11 +194,8 @@ export function SellerProducts() {
     formDataToSend.append("stock", updatedData.stock.toString());
     formDataToSend.append("shipping_time", updatedData.shipping_time);
     formDataToSend.append("shipping_unit", updatedData.shipping_unit);
-    // 3. Agregamos las imágenes reales del estado 'productImages'
 
-    // productImages.forEach((file) => {
-    //   formDataToSend.append("images", file); // El nombre "images" debe coincidir con tu backend
-    // });
+    // 3. Agregamos las imágenes reales del estado 'productImages'
 
     console.log("existing images: ", existingImages);
     console.log("new files: ", newFiles);
@@ -224,7 +227,8 @@ export function SellerProducts() {
   };
 
   //===========================================================================
-  const handleSubmit = (e: React.FormEvent) => {
+  let msgError = "";
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (editingProduct) {
@@ -254,21 +258,25 @@ export function SellerProducts() {
         shipping_time: formData.shipping_time,
         shipping_unit: formData.shipping_unit,
       };
+      msgError = "";
+      const ok = await createProduct(newProduct);
+      if (msgError) {
+        alert(msgError);
+        return;
+      }
 
       setProducts([newProduct, ...products]);
-
-      createProduct(newProduct);
     }
 
     closeModal();
   };
 
-  const createProduct = async (newProduct: Product) => {
+  const createProduct = async (newProduct: Product): Promise<boolean> => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert("Debe iniciar sesión");
-        return;
+        msgError = "Debe iniciar sesión";
+        return false;
       }
 
       // 1. Creamos un FormData en lugar de un objeto plano
@@ -307,10 +315,13 @@ export function SellerProducts() {
       const data: Product = await response.json();
       setProducts((prev) => [data, ...prev]);
       alert("Producto creado con éxito");
-    } catch (error) {
-      console.error(error);
-      alert("No se pudo crear el producto");
+      return true;
+    } catch (error: any) {
+      msgError = error;
+      return false;
     }
+    msgError = "Error desconocido al crear producto";
+    return false;
   };
   //=================================================================================
 
@@ -322,7 +333,7 @@ export function SellerProducts() {
       setProductImages(product.image);
       // Las URLs de preview para imágenes existentes suelen ser la URL de tu backend
       const existingUrls = product.image.map(
-        (imgName) => `http://127.0.0.1:3000/uploads/${imgName}`,
+        (imgName) => `${baseUrl}${imgName}`,
       );
       setImagePreviewUrls(existingUrls);
       //
@@ -733,7 +744,8 @@ export function SellerProducts() {
                       >
                         <img
                           src={url}
-                          alt={`Preview ${index + 1}`}
+                          // alt={`Preview ${index + 1}`}
+                          alt={`Preview ${url}`}
                           className="w-full h-full object-cover rounded-lg border-2 border-gray-200"
                         />
                         {/* Badge de orden */}

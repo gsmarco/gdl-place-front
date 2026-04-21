@@ -43,7 +43,7 @@ interface BuyerAuthContextType {
     category: string,
     description: string,
     password: string,
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   continueAsGuest: () => void;
   logout: () => void;
 }
@@ -149,7 +149,8 @@ export function BuyerAuthProvider({ children }: { children: ReactNode }) {
       console.log("Registro exitoso:", data);
       // Simulación de registro - en producción conectar con backend
       // await new Promise(resolve => setTimeout(resolve, 800));
-    } catch (error) {
+    } catch (error: any) {
+      alert(error.response.data.error);
       throw error;
     }
   };
@@ -164,11 +165,9 @@ export function BuyerAuthProvider({ children }: { children: ReactNode }) {
     category: string,
     description: string,
     password: string,
-  ) => {
+  ): Promise<boolean> => {
     try {
       const apiUrl = apiUrlBase + "/api/sellers";
-      alert(apiUrl);
-
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
@@ -187,10 +186,29 @@ export function BuyerAuthProvider({ children }: { children: ReactNode }) {
         }),
       });
 
-      // Simulación de registro - en producción conectar con backend
-      await new Promise((resolve) => setTimeout(resolve, 800));
-    } catch (error) {
+      const data = await response.json();
+      if (!response.ok) {
+        console.log("Error:", data.error || data.message);
+        alert(
+          "Error: " +
+            data.error +
+            "\n" +
+            "Codigo de error: " +
+            data.codigo +
+            "\n" +
+            "tabla: " +
+            data.tabla +
+            "\n" +
+            "constraint: " +
+            data.constraint,
+        );
+        return false;
+      }
+      return true;
+    } catch (error: any) {
+      alert(error.response.data.error);
       throw error;
+      return true;
     }
   };
 

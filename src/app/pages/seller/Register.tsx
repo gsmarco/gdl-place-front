@@ -1,9 +1,19 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useState } from "react";
+import { useNavigate } from "react-router";
 import { validateEmail } from "../../components/validateEmail";
-import { useBuyerAuth } from '../../contexts/BuyerAuthContext';
-import { Store, Mail, Phone, MapPin, User, Building, Lock, Eye, EyeOff } from 'lucide-react';
-import { Category } from '@mui/icons-material';
+import { useBuyerAuth } from "../../contexts/BuyerAuthContext";
+import {
+  Store,
+  Mail,
+  Phone,
+  MapPin,
+  User,
+  Building,
+  Lock,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+import { Category } from "@mui/icons-material";
 
 export function SellerRegister() {
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -15,77 +25,88 @@ export function SellerRegister() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    businessName: '',
-    ownerName: '',
-    email: '',
-    address: '',
-    phone: '',
-    city: '',
-    category: '',
-    description: '',
-    password: '',
-    confirmPassword: '',
+    businessName: "",
+    ownerName: "",
+    email: "",
+    address: "",
+    phone: "",
+    city: "",
+    category: "",
+    description: "",
+    password: "",
+    confirmPassword: "",
   });
 
-    const validateField = (name: string, value: string) => {
+  const validateField = (name: string, value: string) => {
     switch (name) {
-      case 'bussinnesName':
-        if (!value) return 'El nombre del negocio requerido';
-        return '';
-      case 'ownerName':
-        if (!value) return 'El nombre del propietario es requerido';
-        return '';
-      case 'email':
-        if (!value) return 'El correo es requerido';
-        if (!validateEmail(value)) return 'Correo inválido';
-        return '';
-      case 'password':
-        if (!value) return 'El password es requerido';
-        if (value.length < 6) return 'Mínimo 6 caracteres';
-        return '';
-      case 'confirmPassword':
-        if (!value) return 'ConfirmPassword es requerido';
-        if (value.length < 6) return 'Mínimo 6 caracteres';
-        return '';
-      case 'phone':
-        if (!value) return 'El teléfono es requerido';
-        if (value.length < 10) return 'Mínimo 10 caracteres';
-        return '';
-      case 'address':
-        if (!value) return 'La Dirección es requerida';
-        return '';
-      case 'city':
-        if (!value) return 'La ciudad es requerida';
-        return '';
-      case 'category':
-        if (!value) return 'La Categoría es requerida';
-        if (value.length < 5) return 'Mínimo 10 caracteres';
-        return '';
-      case 'description':
-        if (!value) return 'La descripción es requerida';
-        return '';
- 
+      case "bussinnesName":
+        if (!value) return "El nombre del negocio requerido";
+        return "";
+      case "ownerName":
+        if (!value) return "El nombre del propietario es requerido";
+        return "";
+      case "email":
+        if (!value) return "El correo es requerido";
+        if (!validateEmail(value)) return "Correo inválido";
+        return "";
+      case "password":
+        if (!value) return "El password es requerido";
+        if (value.length < 6) return "Mínimo 6 caracteres";
+        return "";
+      case "confirmPassword":
+        if (!value) return "ConfirmPassword es requerido";
+        if (value.length < 6) return "Mínimo 6 caracteres";
+        return "";
+      case "phone":
+        if (!value) return "El teléfono es requerido";
+        if (value.length < 10) return "Mínimo 10 caracteres";
+        return "";
+      case "address":
+        if (!value) return "La Dirección es requerida";
+        return "";
+      case "city":
+        if (!value) return "La ciudad es requerida";
+        return "";
+      case "category":
+        if (!value) return "La Categoría es requerida";
+        if (value.length < 5) return "Mínimo 10 caracteres";
+        return "";
+      case "description":
+        if (!value) return "La descripción es requerida";
+        return "";
+
       default:
-        return '';
+        return "";
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
-    Object.keys(formData).forEach(key => {
+    Object.keys(formData).forEach((key) => {
       const error = validateField(key, formData[key as keyof typeof formData]);
       if (error) {
-        newErrors[key] = error;        
+        newErrors[key] = error;
       }
     });
 
-    setTouched({ bussinesName: true, ownerName: true, email: true, address: true, phone: true, city: true, category: true, description: true, password: true, confirmPassword: true });
+    setTouched({
+      bussinesName: true,
+      ownerName: true,
+      email: true,
+      address: true,
+      phone: true,
+      city: true,
+      category: true,
+      description: true,
+      password: true,
+      confirmPassword: true,
+    });
 
     if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
       try {
-        await register_seller(
+        const respuesta = await register_seller(
           formData.businessName,
           formData.ownerName,
           formData.email,
@@ -96,10 +117,12 @@ export function SellerRegister() {
           formData.description,
           formData.password,
         );
-        navigate('/');
+        if (respuesta) navigate("/");
       } catch (error) {
         alert("Error al crear los datos del negocio. Intenta de nuevo.");
-        setErrors({ submit: 'Error al crear los datos del negocio. Intenta de nuevo.' });
+        setErrors({
+          submit: "Error al crear los datos del negocio. Intenta de nuevo.",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -107,7 +130,7 @@ export function SellerRegister() {
   };
 
   const updateField = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -128,7 +151,10 @@ export function SellerRegister() {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="bg-white rounded-2xl border shadow-sm p-8">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white rounded-2xl border shadow-sm p-8"
+          >
             <div className="space-y-6">
               {/* Business Information */}
               <div>
@@ -136,7 +162,7 @@ export function SellerRegister() {
                   <Building className="size-5 text-blue-600" />
                   Información del Negocio
                 </h2>
-                
+
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -146,7 +172,9 @@ export function SellerRegister() {
                       type="text"
                       required
                       value={formData.businessName}
-                      onChange={(e) => updateField('businessName', e.target.value)}
+                      onChange={(e) =>
+                        updateField("businessName", e.target.value)
+                      }
                       className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Mi Tienda Local"
                     />
@@ -159,7 +187,7 @@ export function SellerRegister() {
                     <select
                       required
                       value={formData.category}
-                      onChange={(e) => updateField('category', e.target.value)}
+                      onChange={(e) => updateField("category", e.target.value)}
                       className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">Selecciona una categoría</option>
@@ -179,7 +207,9 @@ export function SellerRegister() {
                     <textarea
                       required
                       value={formData.description}
-                      onChange={(e) => updateField('description', e.target.value)}
+                      onChange={(e) =>
+                        updateField("description", e.target.value)
+                      }
                       className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       rows={3}
                       placeholder="Describe brevemente tu negocio y los productos que vendes..."
@@ -194,7 +224,7 @@ export function SellerRegister() {
                   <User className="size-5 text-blue-600" />
                   Información Personal
                 </h2>
-                
+
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -204,7 +234,7 @@ export function SellerRegister() {
                       type="text"
                       required
                       value={formData.ownerName}
-                      onChange={(e) => updateField('ownerName', e.target.value)}
+                      onChange={(e) => updateField("ownerName", e.target.value)}
                       className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Juan Pérez"
                     />
@@ -221,7 +251,7 @@ export function SellerRegister() {
                           type="email"
                           required
                           value={formData.email}
-                          onChange={(e) => updateField('email', e.target.value)}
+                          onChange={(e) => updateField("email", e.target.value)}
                           className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="juan@example.com"
                         />
@@ -238,7 +268,7 @@ export function SellerRegister() {
                           type="tel"
                           required
                           value={formData.phone}
-                          onChange={(e) => updateField('phone', e.target.value)}
+                          onChange={(e) => updateField("phone", e.target.value)}
                           className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="+1 234 567 890"
                         />
@@ -254,10 +284,12 @@ export function SellerRegister() {
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
                         <input
-                          type={showPassword ? 'text' : 'password'}
+                          type={showPassword ? "text" : "password"}
                           required
                           value={formData.password}
-                          onChange={(e) => updateField('password', e.target.value)}
+                          onChange={(e) =>
+                            updateField("password", e.target.value)
+                          }
                           className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="Contraseña"
                         />
@@ -266,7 +298,11 @@ export function SellerRegister() {
                           className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-gray-400"
                           onClick={() => setShowPassword(!showPassword)}
                         >
-                          {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                          {showPassword ? (
+                            <EyeOff className="size-4" />
+                          ) : (
+                            <Eye className="size-4" />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -278,19 +314,27 @@ export function SellerRegister() {
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
                         <input
-                          type={showConfirmPassword ? 'text' : 'password'}
+                          type={showConfirmPassword ? "text" : "password"}
                           required
                           value={formData.confirmPassword}
-                          onChange={(e) => updateField('confirmPassword', e.target.value)}
+                          onChange={(e) =>
+                            updateField("confirmPassword", e.target.value)
+                          }
                           className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="Confirmar Contraseña"
                         />
                         <button
                           type="button"
                           className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-gray-400"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
                         >
-                          {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                          {showConfirmPassword ? (
+                            <EyeOff className="size-4" />
+                          ) : (
+                            <Eye className="size-4" />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -304,7 +348,7 @@ export function SellerRegister() {
                   <MapPin className="size-5 text-blue-600" />
                   Ubicación
                 </h2>
-                
+
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -314,7 +358,7 @@ export function SellerRegister() {
                       type="text"
                       required
                       value={formData.address}
-                      onChange={(e) => updateField('address', e.target.value)}
+                      onChange={(e) => updateField("address", e.target.value)}
                       className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Calle Principal 123"
                     />
@@ -328,7 +372,7 @@ export function SellerRegister() {
                       type="text"
                       required
                       value={formData.city}
-                      onChange={(e) => updateField('city', e.target.value)}
+                      onChange={(e) => updateField("city", e.target.value)}
                       className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Ciudad"
                     />
@@ -345,7 +389,14 @@ export function SellerRegister() {
                     className="mt-1 rounded text-blue-600 focus:ring-blue-500"
                   />
                   <span className="text-sm text-gray-700">
-                    Acepto los <a href="#" className="text-blue-600 hover:underline">términos y condiciones</a> y la <a href="#" className="text-blue-600 hover:underline">política de privacidad</a>
+                    Acepto los{" "}
+                    <a href="#" className="text-blue-600 hover:underline">
+                      términos y condiciones
+                    </a>{" "}
+                    y la{" "}
+                    <a href="#" className="text-blue-600 hover:underline">
+                      política de privacidad
+                    </a>
                   </span>
                 </label>
               </div>
@@ -359,7 +410,13 @@ export function SellerRegister() {
               </button>
 
               <p className="text-center text-sm text-gray-600">
-                ¿Ya tienes una cuenta? <a href="/seller/login" className="text-blue-600 hover:underline">Inicia sesión</a>
+                ¿Ya tienes una cuenta?{" "}
+                <a
+                  href="/seller/login"
+                  className="text-blue-600 hover:underline"
+                >
+                  Inicia sesión
+                </a>
               </p>
             </div>
           </form>
@@ -368,4 +425,3 @@ export function SellerRegister() {
     </div>
   );
 }
-

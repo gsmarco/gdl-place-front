@@ -47,6 +47,12 @@ export function MyStore() {
   const coverInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
+  function ajustaUrl(imagen: string) {
+    if (!imagen) return "";
+    if (!imagen.startsWith("/uploads")) return "/uploads/" + imagen;
+    return imagen;
+  }
+
   useEffect(() => {
     setDatosLeidos(false);
     if (store) {
@@ -59,7 +65,7 @@ export function MyStore() {
       setGalleryImages(
         store.gallery_images.map((img, index) => ({
           id: `${index}-${img}`,
-          url: `${img}`,
+          url: `${ajustaUrl(img)}`,
         })),
       );
     }
