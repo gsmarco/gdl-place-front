@@ -64,6 +64,7 @@ export function useLeeTendencias(token: string, userId: string) {
   const [trendData, setTrendData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const apiUrlBase = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     // 👇 SOLO ejecuta cuando haya datos reales
@@ -74,7 +75,7 @@ export function useLeeTendencias(token: string, userId: string) {
         setLoading(true);
 
         const response = await fetch(
-          `http://127.0.0.1:3000/api/tendenciasVentas/${userId}`,
+          `${apiUrlBase}/api/tendenciasVentas/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
