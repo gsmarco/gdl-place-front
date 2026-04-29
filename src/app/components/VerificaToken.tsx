@@ -12,9 +12,12 @@ export const useVerificaToken = () => {
     if (!token || expired) {
       alert("Token inválido, inicie sesión de nuevo");
       logout();
-      navigate("/buyer/login");
+      // navigate("/buyer/login");
+      navigate("/");
+      return;
     }
-  }, [token, expired, navigate, logout]);
+  }, []);
+  // }, [token, expired, navigate, logout]);
 
   return { token, expired, userId: id ?? "", email };
 };
