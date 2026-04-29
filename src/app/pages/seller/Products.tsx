@@ -94,6 +94,7 @@ export function SellerProducts() {
   const auth = Variables.auth;
   const token = Variables.token;
   const email = Variables.email;
+  const role = Variables.role;
   const baseUrl = getEndPoint("");
 
   //==========================================================
@@ -113,7 +114,11 @@ export function SellerProducts() {
         return;
       }
 
-      const apiUrl = baseUrl + "/api/ProductsBySeller/" + userId;
+      let apiUrl = baseUrl + "/api/ProductsBySeller/" + userId;
+      if (role == "admin") {
+        apiUrl = baseUrl + "/api/Products";
+      }
+
       const fetchProducts = async () => {
         try {
           const response = await fetch(apiUrl, {

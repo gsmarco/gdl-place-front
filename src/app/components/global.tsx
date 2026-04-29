@@ -8,6 +8,7 @@ export interface authVars {
   userId: number;
   userName: string;
   email: string;
+  role: string;
   message: string;
 }
 
@@ -69,6 +70,7 @@ export const getVars = (ruta: string) => {
     userId: 0,
     userName: "",
     email: "",
+    role: "",
     message: "Inicie sesión de vendedor",
   };
 
@@ -87,6 +89,7 @@ export const getVars = (ruta: string) => {
   let userId = 0;
   let userName = "";
   let email = "";
+  let role = "";
 
   if (raw) {
     // Convertir el string JSON a objeto
@@ -95,6 +98,7 @@ export const getVars = (ruta: string) => {
     userId = user.id;
     email = user.email;
     userName = user.name;
+    role = user.role;
   } else {
     mensaje = "No existe la clave 'user' en localStorage";
     console.log(mensaje);
@@ -106,6 +110,7 @@ export const getVars = (ruta: string) => {
     userId: userId,
     userName: userName,
     email: email,
+    role: role,
     message: mensaje,
   };
 

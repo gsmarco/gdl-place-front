@@ -106,7 +106,10 @@ export function SellerLogin() {
       console.log(resultado);
 
       if (resultado.success) {
-        if (resultado.user?.role == "seller") {
+        if (
+          resultado.user?.role == "seller" ||
+          resultado.user?.role == "admin"
+        ) {
           navigate("/seller/dashboard");
         } else {
           alert("ERROR: No estás registrado como Vendedor");
