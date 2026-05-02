@@ -79,7 +79,7 @@ export function Header({
           <nav className="flex items-center gap-4">
             {isSeller ? (
               <>
-                <Link
+                {/* <Link
                   to="/seller/dashboard"
                   className={`px-3 py-2 rounded-lg transition-colors ${
                     location.pathname === "/seller/dashboard"
@@ -88,7 +88,8 @@ export function Header({
                   }`}
                 >
                   Dashboard
-                </Link>
+                </Link> */}
+
                 <Link
                   to="/seller/products"
                   className={`px-3 py-2 rounded-lg transition-colors ${

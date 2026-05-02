@@ -110,7 +110,7 @@ export function SellerLogin() {
           resultado.user?.role == "seller" ||
           resultado.user?.role == "admin"
         ) {
-          navigate("/seller/dashboard");
+          navigate("/seller/products");
         } else {
           alert("ERROR: No estás registrado como Vendedor");
         }

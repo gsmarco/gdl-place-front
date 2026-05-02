@@ -47,7 +47,17 @@ export function useCargaVentas() {
         });
 
         const data = await response.json();
-        setSales(data);
+        // Recalcular el total de cada venta
+        const ventasConTotal = data.map((venta: Sale) => {
+          const nuevoTotal = venta.products.reduce((acc, producto) => {
+            return acc + producto.price * producto.quantity;
+          }, 0);
+          return { ...venta, total: nuevoTotal };
+        });
+
+        setSales(ventasConTotal);
+
+        // setSales(data);
       } catch (error) {
         console.error("*** ERROR AL CARGAR LAS VENTAS ***", error);
       }

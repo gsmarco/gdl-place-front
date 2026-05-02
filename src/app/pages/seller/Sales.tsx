@@ -397,7 +397,7 @@ export function SellerSales() {
                     Fecha
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    ID Orden
+                    ID Pedido
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Producto
@@ -430,7 +430,7 @@ export function SellerSales() {
                       })}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {(sale.id ?? "").toUpperCase()}
+                      ORD-{sale.id ?? "0"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                       {"sale.productName"}
@@ -511,7 +511,8 @@ export function SellerSales() {
                       Detalle del Pedido
                     </h2>
                     <p className="text-sm text-gray-500 mt-1">
-                      ID: {(selectedSale.id ?? "").toUpperCase()}
+                      {/* ID: {(selectedSale.id ?? "").toUpperCase()} */}
+                      NUM. PEDIDO: ORD-{selectedSale.id ?? ""}
                     </p>
                   </div>
                   <button
