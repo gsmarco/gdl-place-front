@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useVerificaToken } from "../../components/VerificaToken";
 import { useCargaVentas, useLeeTendencias } from "../../components/LeeVentas";
 import { useProductosMasVendidos } from "../../components/ProductosMasVendidos";
-
+import { usuarioEsVendendor } from "../../components/usuarioEsVendedor";
 import {
   Calendar,
   Download,
@@ -66,6 +66,12 @@ interface Sale {
 }
 
 export function SellerSales() {
+  // Comprobamos el rol del usuario:
+  if (!usuarioEsVendendor(["seller"])) {
+    window.history.back();
+    return;
+  }
+
   const { token, expired, userId, email } = useVerificaToken();
   if (!token) return;
 

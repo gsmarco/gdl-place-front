@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useNavigate, Link } from "react-router";
 import { getEndPoint, getVars } from "../../components/global";
 import { useSeller } from "../../components/getDatosVend";
-
+import { usuarioEsVendendor } from "../../components/usuarioEsVendedor";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,11 +29,15 @@ import {
   AlertDialogTitle,
 } from "../../components/ui/alert-dialog";
 
-// import { stringify } from "querystring";
-// import { Navigate } from "react-router";
-
 export function SellerProducts() {
   const navigate = useNavigate();
+
+  // Comprobamos el rol del usuario:
+  if (!usuarioEsVendendor(["seller", "admin"])) {
+    window.history.back();
+    return;
+  }
+
   const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -151,19 +155,11 @@ export function SellerProducts() {
   }
 
   function cargaImagenes(producto: Product) {
-    // const urlImage = baseUrl + "/uploads";
+    // let urlImage = baseUrl + "/uploads/";
+    // urlImage = "";
+    const allImages = (producto.image || []).map((img: string) => `${img}`);
 
-    // const allImages = (producto.image || []).map(
-    //   (img: string) => `${urlImage}/${img}`,
-    // );
-
-    // setImagePreviewUrls(allImages);
-    // const mibaseUrl = "localhost:5173";
-    const urlImage = baseUrl + "/uploads/";
-
-    const allImages = (producto.image || []).map(
-      (img: string) => `${urlImage}${img}`,
-    );
+    console.log("allImages: ", allImages);
 
     setImagePreviewUrls(allImages);
   }
@@ -337,9 +333,7 @@ export function SellerProducts() {
       //
       setProductImages(product.image);
       // Las URLs de preview para imágenes existentes suelen ser la URL de tu backend
-      const existingUrls = product.image.map(
-        (imgName) => `${baseUrl}${imgName}`,
-      );
+      const existingUrls = product.image.map((imgName) => `${imgName}`);
       setImagePreviewUrls(existingUrls);
       //
 
@@ -728,7 +722,7 @@ export function SellerProducts() {
 
               {/* Imágenes del Producto */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2 items-center gap-2">
                   <ImageIcon className="size-4" />
                   Imágenes del Producto (Máx. 5)
                 </label>
@@ -823,7 +817,7 @@ export function SellerProducts() {
 
               {/* Tiempo de Envío */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2 items-center gap-2">
                   <Truck className="size-4" />
                   Tiempo de Envío *
                 </label>

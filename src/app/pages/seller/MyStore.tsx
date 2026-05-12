@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { usuarioEsVendendor } from "../../components/usuarioEsVendedor";
 import {
   Upload,
   Image as ImageIcon,
@@ -24,6 +25,12 @@ interface StoreImage {
 }
 
 export function MyStore() {
+  // Comprobamos el rol del usuario:
+  if (!usuarioEsVendendor(["seller"])) {
+    window.history.back();
+    return;
+  }
+
   const { token, expired, userId, email } = useVerificaToken();
   if (!token) return;
 
@@ -47,12 +54,6 @@ export function MyStore() {
   const coverInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
-  function ajustaUrl(imagen: string) {
-    if (!imagen) return "";
-    if (!imagen.startsWith("/uploads")) return "/uploads/" + imagen;
-    return imagen;
-  }
-
   useEffect(() => {
     setDatosLeidos(false);
     if (store) {
@@ -65,7 +66,7 @@ export function MyStore() {
       setGalleryImages(
         store.gallery_images.map((img, index) => ({
           id: `${index}-${img}`,
-          url: `${ajustaUrl(img)}`,
+          url: `${img}`,
         })),
       );
     }
@@ -74,7 +75,7 @@ export function MyStore() {
   // Ajusta la url correcta del servidor de backend para obtener la imagen correcta
   const mapToStoreImage = (path: string): StoreImage => ({
     id: path, //crypto.randomUUID(), // o path si quieres algo estable
-    url: `${baseUrl}${path}`,
+    url: `${path}`,
   });
 
   const editaTienda = (editando: boolean) => {
@@ -255,35 +256,13 @@ export function MyStore() {
     setIsEditing(false);
   };
 
-  // const getImageUrl = (url: string) => {
-  //   if (url.startsWith("http")) {
-  //     return url;
-  //   }
-
-  //   return baseUrl + url;
-  // };
-
-  const getImageUrl = (url: string) => {
-    if (!url) return "";
-
-    // 🔥 imágenes nuevas (preview)
-    if (url.startsWith("blob:")) return url;
-
-    // 🔥 imágenes ya completas
-    if (url.startsWith("http")) return url;
-
-    // 🔥 imágenes del backend
-    return baseUrl + url;
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Hero Section con imagen de portada */}
       <div className="relative h-80 bg-gradient-to-r from-blue-600 to-indigo-600 overflow-hidden">
         {coverImage ? (
           <img
-            src={getImageUrl(coverImage.url)}
-            // src={coverImage.url}
+            src={coverImage.url}
             alt="Portada de la tienda"
             className="w-full h-full object-cover"
           />
@@ -476,9 +455,8 @@ export function MyStore() {
                         className="relative group aspect-video rounded-xl overflow-hidden shadow-lg"
                       >
                         <img
-                          src={getImageUrl(image.url)}
-                          // src={image.url}
-                          alt="Galería"
+                          src={image.url}
+                          alt={image.url}
                           className="w-full h-full object-cover transition-transform group-hover:scale-110"
                         />
                         {isEditing && (
