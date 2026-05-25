@@ -1,7 +1,5 @@
 import { Product } from "../data/mockData";
 
-const baseUrl = import.meta.env.VITE_API_URL;
-
 export function getFirstImage(product: Product): string {
   let imagen: string = "";
 
@@ -13,7 +11,7 @@ export function getFirstImage(product: Product): string {
 
   if (!imagen) return "";
 
-  const imagenStr = imagen.toString(); // 🔑 convertir a string
+  const imagenStr = imagen.toString(); // convertir a string
 
   return imagenStr;
 }

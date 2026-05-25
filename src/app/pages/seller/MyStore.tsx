@@ -25,6 +25,12 @@ interface StoreImage {
 }
 
 export function MyStore() {
+  if (!localStorage.getItem("token")) {
+    alert("Inicie sesión");
+    window.history.back();
+    return;
+  }
+
   // Comprobamos el rol del usuario:
   if (!usuarioEsVendendor(["seller"])) {
     window.history.back();
@@ -156,7 +162,7 @@ export function MyStore() {
     console.log("datos enviados: \n", formData);
 
     try {
-      const response = await fetch(baseUrl + "/api/Store/" + userId, {
+      const response = await fetch(baseUrl + "/api/store/" + userId, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

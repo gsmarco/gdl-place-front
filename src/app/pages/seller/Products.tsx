@@ -30,6 +30,12 @@ import {
 } from "../../components/ui/alert-dialog";
 
 export function SellerProducts() {
+  if (!localStorage.getItem("token")) {
+    alert("Inicie sesión");
+    window.history.back();
+    return;
+  }
+
   const navigate = useNavigate();
 
   // Comprobamos el rol del usuario:

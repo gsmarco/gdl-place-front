@@ -66,6 +66,12 @@ interface Sale {
 }
 
 export function SellerSales() {
+  if (!localStorage.getItem("token")) {
+    alert("Inicie sesión");
+    window.history.back();
+    return;
+  }
+
   // Comprobamos el rol del usuario:
   if (!usuarioEsVendendor(["seller"])) {
     window.history.back();

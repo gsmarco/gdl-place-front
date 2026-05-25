@@ -69,7 +69,17 @@ export function BuyerLogin() {
       setIsLoading(true);
       try {
         const resultado = await login(formData.email, formData.password);
-        if (resultado.success) navigate("/");
+        if (resultado.success) {
+          const resultado = await login(formData.email, formData.password);
+
+          if (resultado.success && resultado.user) {
+            if (resultado.user.role === "buyer") {
+              navigate("/");
+            } else {
+              navigate("/seller/products");
+            }
+          }
+        }
       } catch (error: any) {
         // Si el login lanza un Error con message, úsalo
         setErrors({
